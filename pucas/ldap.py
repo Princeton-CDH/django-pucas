@@ -36,8 +36,10 @@ class LDAPSearch(object):
         if netid:
             self.conn.search(settings.PUCAS_LDAP['SEARCH_BASE'],
                     settings.PUCAS_LDAP['SEARCH_FILTER'] % {'user': netid},
-                    attributes='*'
-                    # attributes=settings.PUCAS_LDAP['ATTRIBUTES']
+                    # NOTE: for testing, to see all available attributes,
+                    # use wildcard
+                    # attributes='*'
+                    attributes=settings.PUCAS_LDAP['ATTRIBUTES']
             )
             if self.conn.entries:
                 if len(self.conn.entries) > 1:
