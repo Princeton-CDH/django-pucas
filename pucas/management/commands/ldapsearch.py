@@ -16,7 +16,6 @@ class Command(BaseCommand):
             print('\nLooking for %s...' % netid)
             try:
                 info = ldap_search.find_user(netid)
-                print(info)
                 # display attributes configured in settings
                 for attr in settings.PUCAS_LDAP['ATTRIBUTES']:
                     print('%-15s %s' % (attr, getattr(info, attr)))
