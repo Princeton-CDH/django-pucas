@@ -91,3 +91,18 @@ template snippet.  An example admin login form is included at
 ``admin/login.html`` within a valid template directory and modify
 as needed.
 
+Usage
+-----
+
+Users can login with CAS and have a Django user account automatically
+created and populated with LDAP data based on the settings.
+
+Two manage commands are provided, for convenience.
+
+* Use ``python manage.py ldapsearch netid1 netid2 netid3`` for testing
+  your LDAP configuration and attributes.
+* Use ``python manage.py createcasuser netid`` to initialize a new
+  CAS account and populate data from LDAP without requiring the user
+  to login first, as an aid to managing accounts and permissions.
+
+
