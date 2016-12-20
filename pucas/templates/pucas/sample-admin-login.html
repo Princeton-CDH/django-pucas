@@ -1,0 +1,15 @@
+{% extends 'admin/login.html' %}
+
+{% block extrastyle %}
+<style type="text/css">
+    .cas-login {
+        padding: 50px 0 5px;
+        border-bottom: 1px solid #ababab;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    {% include 'pucas/cas-login.html' %}
+    {{ block.super }}
+{% endblock %}

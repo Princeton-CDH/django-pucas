@@ -84,3 +84,10 @@ Run migrations to create database tables required by django-cas-ng::
 
     python manage.py migrate
 
+To make CAS login available on the Django admin login form, extend the
+default admin login form and include or adapt the provided CAS login
+template snippet.  An example admin login form is included at
+``pucas/templates/pucas/sample-admin-login.html``; copy this to
+``admin/login.html`` within a valid template directory and modify
+as needed.
+
