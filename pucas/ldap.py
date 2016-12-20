@@ -52,72 +52,16 @@ class LDAPSearch(object):
             raise LDAPSearchException('Error: requested LDAP lookup on empty netid')
 
 
+def user_info_from_ldap(user):
+    '''Populate django user info from ldap'''
 
+    # configured mapping of user fields to ldap fields
+    attr_map = settings.PUCAS_LDAP['ATTRIBUTE_MAP']
 
-# BASE = settings.BASE
-# SERVERLIST = settings.SERVERLIST
-# WHO = settings.WHO
-# HOW = settings.HOW
-# ATTRIBS = settings.ATTRIBS
+    user_info = LDAPSearch().find_user(user.username)
+    if user_info:
+        for user_attr, ldap_attr in attr_map.items():
+            setattr(user, user_attr, getattr(user_info, ldap_attr))
 
-# def connect_ldap():
+        user.save()
 
-#     server_pool_objects = []
-
-#     for server in SERVERLIST:
-#         server_pool_objects.append(
-#             Server(
-#                 server,
-#                 get_info=ALL,
-#                 use_ssl=True
-#             )
-#         )
-
-#     server_pool = ServerPool(
-#         server_pool_objects,
-#         ROUND_ROBIN,
-#         active=True,
-#         exhaust=5
-#     )
-
-#     try:
-#         conn = Connection(
-#             server_pool,
-#             WHO,
-#             HOW,
-#             auto_bind=True,
-#         )
-#     except LDAPException:
-#         raise HttpResponseServerError
-
-#     return conn
-
-
-# def search_ldap(netid):
-#     if netid is not None:
-#         conn = connect_ldap()
-
-#         conn.search(
-#                 BASE,
-#                 '(uid={})'.format(netid),
-#                 attributes=ATTRIBS
-#         )
-
-#         if len(conn.entries) > 1:
-#             print('Ambiguous NetID--more than one entry')
-#             raise HttpResponseServerError
-
-#         else:
-#             person_dict = conn.entries[0].__dict__
-#             new_dict = {}
-#             for attrib in person_dict:
-#                 new_dict[attrib] = str(person_dict[attrib])
-#             return new_dict
-
-
-#     else:
-#         raise HttpResponseServerError
-
-# if __name__ == "__main__":
-#     search = searchLDAP(sys.argv[1])
-#     print(search)

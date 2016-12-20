@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
-from pucas.ldapsearch import LDAPSearch, LDAPSearchException
+from pucas.ldap import LDAPSearch, LDAPSearchException
 
 
 class Command(BaseCommand):
