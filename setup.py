@@ -1,5 +1,6 @@
 import os
 from setuptools import find_packages, setup
+from pucas import __version__
 
 with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
     README = readme.read()
@@ -8,15 +9,14 @@ with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
-    name='django-pucas',
-    version='0.5',
+    name='pucas',
+    version=__version__,
     packages=find_packages(),
     include_package_data=True,
     license='Apache ',
     description='Django app to login with CAS and populate user accounts with LDAP.',
     long_description=README,
-    # GitHub URL todo
-    url='',
+    url='https://github.com/Princeton-CDH/django-pucas',
     install_requires=['django-cas-ng', 'ldap3'],
     author='CDH @ Princeton',
     author_email='digitalhumanities@princeton.edu',
