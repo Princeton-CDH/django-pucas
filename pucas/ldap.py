@@ -1,6 +1,7 @@
 import sys
 import ldap3
 import logging
+import importlib
 
 # from ldap3 import Server, ServerPool, Connection, ALL, ROUND_ROBIN
 from ldap3.core.exceptions import LDAPException
@@ -32,15 +33,17 @@ class LDAPSearch(object):
             # re-raise to be caught elsewhere
             raise
 
-    def find_user(self, netid):
+    def find_user(self, netid, all_attributes=False):
         if netid:
+            # for testing, to see all available attributes
+            if all_attributes:
+                search_attributes = '*'
+            else:
+                search_attributes = settings.PUCAS_LDAP['ATTRIBUTES']
+
             self.conn.search(settings.PUCAS_LDAP['SEARCH_BASE'],
                     settings.PUCAS_LDAP['SEARCH_FILTER'] % {'user': netid},
-                    # NOTE: for testing, to see all available attributes,
-                    # use wildcard
-                    # attributes='*'
-                    attributes=settings.PUCAS_LDAP['ATTRIBUTES']
-            )
+                    attributes=search_attributes)
             if self.conn.entries:
                 if len(self.conn.entries) > 1:
                     raise LDAPSearchException('Found more than one entry for %s' % netid)
@@ -63,7 +66,16 @@ def user_info_from_ldap(user):
     user_info = LDAPSearch().find_user(user.username)
     if user_info:
         for user_attr, ldap_attr in attr_map.items():
-            setattr(user, user_attr, getattr(user_info, ldap_attr))
+            setattr(user, user_attr, str(getattr(user_info, ldap_attr)))
+
+        # optional custom user-init method set in django config
+        extra_init = settings.PUCAS_LDAP.get('EXTRA_USER_INIT', None)
+        if extra_init:
+            # use importlib to import the module and get hte function
+            mod_name, func_name = extra_init.rsplit('.',1)
+            mod = importlib.import_module(mod_name)
+            extra_init_func = getattr(mod, func_name)
+            extra_init_func(user, user_info)
 
         user.save()
 

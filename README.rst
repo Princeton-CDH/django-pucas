@@ -76,7 +76,11 @@ Add required configurations to ``settings.py``:
             'first_name': 'givenName',
             'last_name': 'sn',
             'email': 'mail'
-        }
+        },
+        # Optional local method to do additional user initialization
+        # not handled by attribute map.  Method should take a user
+        # object and ldap search result.
+        'EXTRA_USER_INIT': 'myproj.myapp.models.init_profile_from_ldap'
     }
 
 
