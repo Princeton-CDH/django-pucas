@@ -5,7 +5,7 @@ python:
 
 install:
   - pip install .
-  - pip install '.[test]''
+  - pip install '.[test]'
   - pip install codecov
   - cp ci/testsettings.py testsettings.py
   - python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> testsettings.py
