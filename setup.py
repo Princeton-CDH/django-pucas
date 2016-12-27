@@ -18,6 +18,8 @@ setup(
     long_description=README,
     url='https://github.com/Princeton-CDH/django-pucas',
     install_requires=['django-cas-ng', 'ldap3'],
+    setup_requires=['pytest-runner'],
+    tests_requires=['pytest', 'pytest-django'],
     author='CDH @ Princeton',
     author_email='digitalhumanities@princeton.edu',
     classifiers=[

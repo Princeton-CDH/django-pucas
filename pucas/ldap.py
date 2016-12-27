@@ -21,8 +21,8 @@ class LDAPSearch(object):
         # retrieve settings and initialize connection
         ldap_servers = []
         for server in settings.PUCAS_LDAP['SERVERS']:
-            ldap_servers = ldap3.Server(server, get_info=ldap3.ALL,
-                use_ssl=True)
+            ldap_servers.append(ldap3.Server(server, get_info=ldap3.ALL,
+                use_ssl=True))
         server_pool = ldap3.ServerPool(ldap_servers,
             ldap3.ROUND_ROBIN, active=True, exhaust=5)
 
@@ -35,6 +35,11 @@ class LDAPSearch(object):
 
     def find_user(self, netid, all_attributes=False):
         if netid:
+            # check for required settings and error if not available
+            required_configs = ['ATTRIBUTES', 'SEARCH_BASE', 'SEARCH_FILTER']
+            if any(req not in settings.PUCAS_LDAP for req in required_configs):
+                raise LDAPSearchException('LDAP is not configured for user lookup')
+
             # for testing, to see all available attributes
             if all_attributes:
                 search_attributes = '*'
@@ -61,7 +66,12 @@ def user_info_from_ldap(user):
     '''Populate django user info from ldap'''
 
     # configured mapping of user fields to ldap fields
-    attr_map = settings.PUCAS_LDAP['ATTRIBUTE_MAP']
+    attr_map = settings.PUCAS_LDAP['ATTRIBUTE_MAP', None]
+    # if no map is configured, nothing to do
+    if not attr_map:
+        # is logging sufficient here? or should it be an exception
+        logging.warn('No attribute map configured; not populating user info from ldap')
+        return
 
     user_info = LDAPSearch().find_user(user.username)
     if user_info:
