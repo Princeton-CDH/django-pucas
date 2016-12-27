@@ -95,6 +95,10 @@ template snippet.  An example admin login form is included at
 ``admin/login.html`` within a valid template directory and modify
 as needed.
 
+An example of a login template with local branding is provided at
+``pucas/templates/pucas/sample-pu-login.html`` using re-usable template
+snippets that can be adapted or re-used as appropriate.
+
 Usage
 -----
 
