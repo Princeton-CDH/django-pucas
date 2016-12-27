@@ -1,12 +1,10 @@
-import sys
 import ldap3
 import logging
 import importlib
 
-# from ldap3 import Server, ServerPool, Connection, ALL, ROUND_ROBIN
 from ldap3.core.exceptions import LDAPException
 from django.conf import settings
-from django.http import HttpResponseServerError
+
 
 
 logger = logging.getLogger(__name__)
@@ -29,7 +27,7 @@ class LDAPSearch(object):
         try:
             self.conn = ldap3.Connection(server_pool, auto_bind=True)
         except LDAPException as err:
-            logging.error('Error establishing LDAP connection: %s' % err)
+            logging.error('Error establishing LDAP connection: %s', err)
             # re-raise to be caught elsewhere
             raise
 
@@ -66,7 +64,7 @@ def user_info_from_ldap(user):
     '''Populate django user info from ldap'''
 
     # configured mapping of user fields to ldap fields
-    attr_map = settings.PUCAS_LDAP['ATTRIBUTE_MAP', None]
+    attr_map = settings.PUCAS_LDAP.get('ATTRIBUTE_MAP', None)
     # if no map is configured, nothing to do
     if not attr_map:
         # is logging sufficient here? or should it be an exception

@@ -16,12 +16,11 @@ class TestSignals(TestCase):
     def test_cas_login(self, mock_userinit):
         mockuser = mock.Mock()
         # if create is not true, user init method should be called
-        # (currently not using any args besides user and created)
-        cas_login(mock.Mock(), mockuser, False, {}, mock.Mock(), mock.Mock())
+        cas_login(mock.Mock(), mockuser, False)
         mock_userinit.assert_not_called()
 
         # if create is true, user init method should be called
-        cas_login(mock.Mock(), mockuser, True, {}, mock.Mock(), mock.Mock())
+        cas_login(mock.Mock(), mockuser, True)
         mock_userinit.assert_called_with(mockuser)
 
 

@@ -1,4 +1,4 @@
-from django.conf.urls import include, url
+from django.conf.urls import url
 from django_cas_ng.views import login, logout, callback
 
 urlpatterns = [

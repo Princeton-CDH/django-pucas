@@ -1,6 +1,5 @@
-from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from pucas.ldap import LDAPSearch, LDAPSearchException, \
     user_info_from_ldap
@@ -23,12 +22,12 @@ class Command(BaseCommand):
 
         try:
             # make sure we can find the netid in LDAP first
-            info = ldap_search.find_user(netid)
+            ldap_search.find_user(netid)
             user, created = User.objects.get_or_create(username=netid)
             # NOTE: should we re-init data from ldap even if user
             # already exists, or error?
             user_info_from_ldap(user)
 
-        except LDAPSearchException as err:
+        except LDAPSearchException:
             print('LDAP information for %s not found' % netid)
 
