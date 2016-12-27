@@ -21,7 +21,7 @@ setup(
     url='https://github.com/Princeton-CDH/django-pucas',
     install_requires=['django', 'django-cas-ng', 'ldap3'],
     setup_requires=['pytest-runner'],
-    tests_requires=test_requirements,
+    tests_require=test_requirements,
     extras_require={
         'test': test_requirements,
     },
