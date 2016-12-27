@@ -1,6 +1,18 @@
 django-pucas
 ============
 
+.. image:: https://travis-ci.org/Princeton-CDH/django-pucas.svg?branch=develop
+   :target: https://travis-ci.org/Princeton-CDH/django-pucas
+   :alt: Build status
+
+.. image:: https://codecov.io/gh/Princeton-CDH/django-pucas/branch/develop/graph/badge.svg
+  :target: https://codecov.io/gh/Princeton-CDH/django-pucas
+  :alt: Code Coverage
+
+.. image:: https://landscape.io/github/Princeton-CDH/django-pucas/develop/landscape.svg?style=flat
+   :target: https://landscape.io/github/Princeton-CDH/django-pucas/develop
+   :alt: Code Health
+
 **django-pucas** is a reusable `Django`_ application to simplify logging
 into a Django application with CAS using `django-cas-ng`_.  Login and
 creation of user accounts is handled by django-cas-ng; pucas adds
