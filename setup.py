@@ -19,7 +19,7 @@ setup(
     description='Django app to login with CAS and populate user accounts with LDAP.',
     long_description=README,
     url='https://github.com/Princeton-CDH/django-pucas',
-    install_requires=['django-cas-ng', 'ldap3'],
+    install_requires=['django', 'django-cas-ng', 'ldap3'],
     setup_requires=['pytest-runner'],
     tests_requires=test_requirements,
     extras_require={
