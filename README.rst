@@ -114,3 +114,38 @@ Two manage commands are provided, for convenience.
   to login first, as an aid to managing accounts and permissions.
 
 
+Development instructions
+------------------------
+
+This git repository uses git flow branching conventions.
+
+Initial setup and installation:
+
+- recommended: create and activate a python 3.5 virtualenv::
+
+    virtualenv pucas -p python3.5
+    source pucas/bin/activate
+
+- pip install the package with its python dependencies::
+
+    pip install -e .
+
+
+Unit Testing
+^^^^^^^^^^^^^
+
+Unit tests are written with [py.test](http://doc.pytest.org/) but use some
+Django test classes for compatibility with django test suites.  Running
+the tests requires a minimal settings file for Django required configurations::
+
+Copy sample test settings and add a secret key::
+    cp ci/testsettings.py.sample testsettings.py
+
+To run the tests, either use the configured setup.py test command::
+    python setup.py test
+
+Or install test requirements and use py.test directly::
+    pip install -e '.[test]'
+    py.test
+
+
