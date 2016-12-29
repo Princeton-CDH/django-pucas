@@ -148,16 +148,18 @@ Unit Testing
 
 Unit tests are written with [py.test](http://doc.pytest.org/) but use some
 Django test classes for compatibility with django test suites.  Running
-the tests requires a minimal settings file for Django required configurations::
+the tests requires a minimal settings file for Django required configurations.
 
-Copy sample test settings and add a secret key::
+- Copy sample test settings and add a secret key::
+
     cp ci/testsettings.py.sample testsettings.py
 
-To run the tests, either use the configured setup.py test command::
+- To run the tests, either use the configured setup.py test command::
+
     python setup.py test
 
-Or install test requirements and use py.test directly::
+- Or install test requirements and use py.test directly::
+
     pip install -e '.[test]'
     py.test
-
 
