@@ -27,5 +27,5 @@ class Command(BaseCommand):
                     for attr in settings.PUCAS_LDAP['ATTRIBUTES']:
                         self.stdout.write('%-15s %s' % (attr, getattr(info, attr)))
             except LDAPSearchException as err:
-                self.stderr.write(self.style.ERROR(err))
+                self.stderr.write(self.style.ERROR(str(err)))
 
