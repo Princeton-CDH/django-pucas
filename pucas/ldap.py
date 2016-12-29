@@ -74,6 +74,8 @@ def user_info_from_ldap(user):
     user_info = LDAPSearch().find_user(user.username)
     if user_info:
         for user_attr, ldap_attr in attr_map.items():
+            # NOTE: is it possible some values are not set at all here,
+            # in which case we'd get 'None' string values set?
             setattr(user, user_attr, str(getattr(user_info, ldap_attr)))
 
         # optional custom user-init method set in django config

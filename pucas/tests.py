@@ -4,7 +4,8 @@ from django.test import TestCase, override_settings
 from ldap3.core.exceptions import LDAPException
 import pytest
 
-from pucas.ldap import LDAPSearch, LDAPSearchException
+from pucas.ldap import LDAPSearch, LDAPSearchException, \
+    user_info_from_ldap
 from pucas.signals import cas_login
 
 
@@ -31,7 +32,6 @@ class TestLDAPSearch(TestCase):
     @mock.patch('pucas.ldap.ldap3')
     @override_settings(PUCAS_LDAP={'SERVERS': ldap_servers})
     def test_init(self, mockldap3):
-
         # initialize and then check expected behavior against
         # mock ldap3
         LDAPSearch()
@@ -120,5 +120,54 @@ class TestLDAPSearch(TestCase):
             assert 'LDAP is not configured for user lookup' in str(search_err)
 
 
+def extra_user_init(user, user_info):
+    user.extra = 'custom init'
 
 
+@mock.patch('pucas.ldap.LDAPSearch')
+class TestUserInfo(TestCase):
+
+    test_attr_map = {'first_name': 'givenName', 'last_name': 'surname',
+        'email': 'mail'}
+
+    @override_settings(PUCAS_LDAP={})
+    def test_no_attrs(self, mock_ldapsearch):
+        mockuser = mock.Mock()
+
+        user_info_from_ldap(mockuser)
+        mock_ldapsearch.assert_not_called()
+
+    @override_settings(PUCAS_LDAP={'ATTRIBUTE_MAP': test_attr_map})
+    def test_attrs(self, mock_ldapsearch):
+        mockuser = mock.Mock(username='jdoe')
+
+        # simulate no user info returned
+        mock_ldapsearch.return_value.find_user.return_value = None
+        user_info_from_ldap(mockuser)
+        # ldap search init should be called with no args
+        mock_ldapsearch.assert_called_with()
+        # find user should be called with username
+        mock_ldapsearch.return_value.find_user.assert_called_with('jdoe')
+        # user save should not be called - no data
+        mockuser.save.assert_not_called()
+
+        # simulate user info returned
+        mock_ldapinfo = mock.Mock(givenName='John', surname='Doe',
+            mail='jdoe@example.com', extra='foo')
+        mock_ldapsearch.return_value.find_user.return_value = mock_ldapinfo
+        user_info_from_ldap(mockuser)
+        assert mockuser.first_name == mock_ldapinfo.givenName
+        assert mockuser.last_name == mock_ldapinfo.surname
+        assert mockuser.email == mock_ldapinfo.mail
+        mockuser.save.assert_called_with()
+
+    @override_settings(PUCAS_LDAP={'ATTRIBUTE_MAP': test_attr_map,
+        'EXTRA_USER_INIT': 'pucas.tests.extra_user_init'})
+    def test_extra_init(self, mock_ldapsearch):
+        mockuser = mock.Mock(username='jdoe')
+
+        mock_ldapsearch.return_value.find_user.return_value = mock.Mock()
+        user_info_from_ldap(mockuser)
+        # check for custom field set by test extra init method
+        assert mockuser.extra == 'custom init'
+        mockuser.save.assert_called_with()
