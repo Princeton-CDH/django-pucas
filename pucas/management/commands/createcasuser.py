@@ -29,5 +29,7 @@ class Command(BaseCommand):
             user_info_from_ldap(user)
 
         except LDAPSearchException:
-            print('LDAP information for %s not found' % netid)
+            self.stderr.write(
+                self.style.ERROR("LDAP information for '%s' not found"  \
+                    % netid))
 

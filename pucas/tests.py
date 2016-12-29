@@ -1,12 +1,14 @@
 from unittest import mock
 from django.conf import settings
 from django.test import TestCase, override_settings
+from django.utils.six import StringIO
 from ldap3.core.exceptions import LDAPException
 import pytest
 
 from pucas.ldap import LDAPSearch, LDAPSearchException, \
     user_info_from_ldap
 from pucas.signals import cas_login
+from pucas.management.commands import ldapsearch, createcasuser
 
 
 class TestSignals(TestCase):
@@ -171,3 +173,71 @@ class TestUserInfo(TestCase):
         # check for custom field set by test extra init method
         assert mockuser.extra == 'custom init'
         mockuser.save.assert_called_with()
+
+
+@mock.patch('pucas.management.commands.ldapsearch.LDAPSearch')
+@override_settings(PUCAS_LDAP={'ATTRIBUTES': ['foo', 'bar', 'baz']})
+class TestLDAPSearchCommand(TestCase):
+
+    def setUp(self):
+        self.cmd = ldapsearch.Command()
+        # replace stdout/stderr with buffers to inspect output
+        self.cmd.stdout = StringIO()
+        self.cmd.stderr = StringIO()
+
+    def test_search(self, mock_ldapsearch):
+        mock_ldapinfo = mock.Mock(foo='phooey', bar='none', baz='1')
+        mock_ldapsearch.return_value.find_user.return_value = mock_ldapinfo
+        self.cmd.handle(netid=['jdoe'], all=False)
+        mock_ldapsearch.assert_called_with()
+        mock_ldapsearch.return_value.find_user.assert_called_with('jdoe',
+            all_attributes=False)
+        output = self.cmd.stdout.getvalue()
+        assert 'Looking for jdoe...' in output
+        assert '%-15s %s' % ('foo', 'phooey') in output
+        assert '%-15s %s' % ('bar', 'none') in output
+        assert '%-15s %s' % ('baz', '1') in output
+
+    def test_search_all_attr(self, mock_ldapsearch):
+        mock_ldapsearch.return_value.find_user.return_value = 'full return'
+        self.cmd.handle(netid=['jdoe'], all=True)
+        mock_ldapsearch.return_value.find_user.assert_called_with('jdoe',
+            all_attributes=True)
+        output = self.cmd.stdout.getvalue()
+        # currently all attributes just prints the returned object
+        assert 'full return' in output
+
+    def test_err(self, mock_ldapsearch):
+        error_message = 'Error looking for jdoe'
+        mock_ldapsearch.return_value.find_user.side_effect = \
+            LDAPSearchException(error_message)
+        self.cmd.handle(netid=['jdoe'], all=False)
+        output = self.cmd.stderr.getvalue()
+        assert error_message in output
+
+
+@mock.patch('pucas.management.commands.createcasuser.get_user_model')
+@mock.patch('pucas.management.commands.createcasuser.LDAPSearch')
+@mock.patch('pucas.management.commands.createcasuser.user_info_from_ldap')
+class TestCreateCasUserCommand(TestCase):
+
+    def setUp(self):
+        self.cmd = createcasuser.Command()
+        self.cmd.stdout = StringIO()
+        self.cmd.stderr = StringIO()
+
+    def test_handle(self, mock_userinfo, mock_ldapsearch, mock_getuser):
+        mockuser = mock.Mock()
+        mock_getuser.return_value.objects.get_or_create.return_value = \
+            (mockuser, False)
+        self.cmd.handle(netid='jdoe')
+        # search should be called
+        mock_ldapsearch.return_value.find_user.assert_called_with('jdoe')
+        # user info method should be called
+        mock_userinfo.assert_called_with(mockuser)
+
+    def test_err(self, mock_userinfo, mock_ldapsearch, mock_getuser):
+        mock_ldapsearch.return_value.find_user.side_effect = LDAPSearchException
+        self.cmd.handle(netid='jdoe')
+        output = self.cmd.stderr.getvalue()
+        assert "LDAP information for 'jdoe' not found" in output

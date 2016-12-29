@@ -14,19 +14,18 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         ldap_search = LDAPSearch()
-        print(options['all'])
         for netid in options['netid']:
-            print('\nLooking for %s...' % netid)
+            self.stdout.write('\nLooking for %s...' % netid)
             try:
                 info = ldap_search.find_user(netid, all_attributes=options['all'])
                 # if all attributes were requested, just print the returned
                 # ldap search object
                 if options['all']:
-                    print(info)
+                    self.stdout.write(info)
                 # otherwise, display attributes configured in settings
                 else:
                     for attr in settings.PUCAS_LDAP['ATTRIBUTES']:
-                        print('%-15s %s' % (attr, getattr(info, attr)))
+                        self.stdout.write('%-15s %s' % (attr, getattr(info, attr)))
             except LDAPSearchException as err:
-                print(err)
+                self.stderr.write(self.style.ERROR(err))
 
