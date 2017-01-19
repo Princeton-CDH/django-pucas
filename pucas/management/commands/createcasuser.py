@@ -13,7 +13,9 @@ class Command(BaseCommand):
         parser.add_argument(
                 '--admin',
                 help='Make a superuser from CAS, equivalent to createsuperuser',
-                action='store_true'
+                action='store_true',
+                default=False
+
         )
 
 
