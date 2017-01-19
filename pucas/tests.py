@@ -238,6 +238,6 @@ class TestCreateCasUserCommand(TestCase):
 
     def test_err(self, mock_userinfo, mock_ldapsearch, mock_getuser):
         mock_ldapsearch.return_value.find_user.side_effect = LDAPSearchException
-        self.cmd.handle(netid='jdoe')
+        self.cmd.handle(netid='jdoe', admin='false')
         output = self.cmd.stderr.getvalue()
         assert "LDAP information for 'jdoe' not found" in output
