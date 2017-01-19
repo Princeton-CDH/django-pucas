@@ -10,9 +10,12 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('netid')
+        parser.add_argument(
+                '--admin',
+                help='Make a superuser from CAS, equivalent to createsuperuser',
+                action='store_true'
+        )
 
-        # TODO: add options to set give new user account superuser/staff
-        # permissions
 
     def handle(self, *args, **options):
         User = get_user_model()
@@ -28,8 +31,14 @@ class Command(BaseCommand):
             # already exists, or error?
             user_info_from_ldap(user)
 
+            # If the admin flag is called, make the user an admin
+            if options['admin']:
+                user.is_superuser = True
+                user.is_admin = True
+                user.is_staff = True
+                user.save()
+
         except LDAPSearchException:
             self.stderr.write(
                 self.style.ERROR("LDAP information for '%s' not found"  \
                     % netid))
-
