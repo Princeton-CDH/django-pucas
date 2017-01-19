@@ -20,6 +20,11 @@ mezzanine / grappelli */
     width: 450px;
     text-align: left;
 }
+
+/* match default grappelli login window size */
+.grp-container .cas-login {
+    width: 380px;
+}
 .cas-login a {
     background-image: url('https://fed.princeton.edu/cas/images/pu_signature_web.jpg');
     background-repeat: no-repeat;
@@ -30,10 +35,15 @@ mezzanine / grappelli */
     display: inline-block;
     font-size: 15px;
 }
-.cas-login button {
+.cas-login .button {
     /* princeton orange */
     background-color: #ee7f2d;
+    display: inline-block;
     /* override Chrome/webkit gradient background */
     background: -webkit-gradient(linear, left top, left bottom, from(#ee7f2d), to(#ee7f2d));
     margin-top: 15px;
+    color: white;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
 }
