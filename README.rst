@@ -124,7 +124,8 @@ Two manage commands are provided, for convenience.
 * Use ``python manage.py createcasuser netid`` to initialize a new
   CAS account and populate data from LDAP without requiring the user
   to login first, as an aid to managing accounts and permissions.
-
+  The optional flag ``--admin`` will give the new account superuser
+  permissions
 
 Development instructions
 ------------------------
