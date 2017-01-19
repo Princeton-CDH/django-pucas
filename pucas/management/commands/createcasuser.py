@@ -24,7 +24,7 @@ class Command(BaseCommand):
 
         ldap_search = LDAPSearch()
         netid = options['netid']
-
+        admin = options['admin']
         try:
             # make sure we can find the netid in LDAP first
             ldap_search.find_user(netid)
@@ -34,7 +34,7 @@ class Command(BaseCommand):
             user_info_from_ldap(user)
 
             # If the admin flag is called, make the user an admin
-            if options['admin']:
+            if admin:
                 user.is_superuser = True
                 user.is_admin = True
                 user.is_staff = True

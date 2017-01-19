@@ -230,7 +230,7 @@ class TestCreateCasUserCommand(TestCase):
         mockuser = mock.Mock()
         mock_getuser.return_value.objects.get_or_create.return_value = \
             (mockuser, False)
-        self.cmd.handle(netid='jdoe')
+        self.cmd.handle(netid='jdoe', admin=False)
         # search should be called
         mock_ldapsearch.return_value.find_user.assert_called_with('jdoe')
         # user info method should be called
@@ -238,6 +238,6 @@ class TestCreateCasUserCommand(TestCase):
 
     def test_err(self, mock_userinfo, mock_ldapsearch, mock_getuser):
         mock_ldapsearch.return_value.find_user.side_effect = LDAPSearchException
-        self.cmd.handle(netid='jdoe', admin='false')
+        self.cmd.handle(netid='jdoe', admin=False)
         output = self.cmd.stderr.getvalue()
         assert "LDAP information for 'jdoe' not found" in output
