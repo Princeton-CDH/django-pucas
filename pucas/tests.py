@@ -227,17 +227,37 @@ class TestCreateCasUserCommand(TestCase):
         self.cmd.stderr = StringIO()
 
     def test_handle(self, mock_userinfo, mock_ldapsearch, mock_getuser):
-        mockuser = mock.Mock()
+        mockuser = mock.Mock(is_staff=False, is_superuser=False)
         mock_getuser.return_value.objects.get_or_create.return_value = \
             (mockuser, False)
-        self.cmd.handle(netid='jdoe', admin=False)
+        self.cmd.handle(netids=['jdoe'], admin=False, staff=False)
         # search should be called
         mock_ldapsearch.return_value.find_user.assert_called_with('jdoe')
         # user info method should be called
         mock_userinfo.assert_called_with(mockuser)
+        # not given staff or superuser permissions
+        assert not mockuser.is_staff
+        assert not mockuser.is_superuser
+        output = self.cmd.stdout.getvalue()
+        assert "Updated user 'jdoe'" in output
+
+        # init with staff=True
+        self.cmd.handle(netids=['jdoe'], admin=False, staff=True)
+        assert mockuser.is_staff
+        # init with admin=True
+        self.cmd.handle(netids=['jdoe'], admin=True, staff=True)
+        assert mockuser.is_staff
+        assert mockuser.is_admin
+
+        # created vs updated
+        mock_getuser.return_value.objects.get_or_create.return_value = \
+            (mockuser, True)
+        self.cmd.handle(netids=['jschmoe'], admin=True, staff=True)
+        output = self.cmd.stdout.getvalue()
+        assert "Created user 'jschmoe'" in output
 
     def test_err(self, mock_userinfo, mock_ldapsearch, mock_getuser):
         mock_ldapsearch.return_value.find_user.side_effect = LDAPSearchException
-        self.cmd.handle(netid='jdoe', admin=False)
+        self.cmd.handle(netids=['jdoe'], admin=False, staff=False)
         output = self.cmd.stderr.getvalue()
         assert "LDAP information for 'jdoe' not found" in output

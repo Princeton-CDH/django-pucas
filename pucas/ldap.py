@@ -82,7 +82,7 @@ def user_info_from_ldap(user):
         extra_init = settings.PUCAS_LDAP.get('EXTRA_USER_INIT', None)
         if extra_init:
             # use importlib to import the module and get hte function
-            mod_name, func_name = extra_init.rsplit('.',1)
+            mod_name, func_name = extra_init.rsplit('.', 1)
             mod = importlib.import_module(mod_name)
             extra_init_func = getattr(mod, func_name)
             extra_init_func(user, user_info)
