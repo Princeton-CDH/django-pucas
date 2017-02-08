@@ -1,4 +1,9 @@
-from unittest import mock
+try:
+    # python 3
+    from unittest import mock
+except ImportError:
+    # python 2.7
+    import mock
 from django.conf import settings
 from django.test import TestCase, override_settings
 from django.utils.six import StringIO
