@@ -9,6 +9,9 @@ env:
   - DJANGO=1.9
   - DJANGO=1.10
 
+before_install:
+  - pip install --upgrade pytest
+
 install:
   - pip install -q Django==$DJANGO
   - pip install -e .
