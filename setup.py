@@ -15,7 +15,7 @@ setup(
     version=__version__,
     packages=find_packages(),
     include_package_data=True,
-    license='Apache ',
+    license='Apache License, Version 2.0',
     description='Django app to login with CAS and populate user accounts with LDAP.',
     long_description=README,
     url='https://github.com/Princeton-CDH/django-pucas',
