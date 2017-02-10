@@ -6,8 +6,8 @@ from ldap3.core.exceptions import LDAPException
 from django.conf import settings
 
 
-
 logger = logging.getLogger(__name__)
+
 
 class LDAPSearchException(LDAPException):
     pass
@@ -28,26 +28,18 @@ class LDAPSearch(object):
         bind_dn = settings.PUCAS_LDAP.get('BIND_DN', None)
         bind_password = settings.PUCAS_LDAP.get('BIND_PASSWORD', None)
 
-        # If DN and password exist, use them. Otherwise, try an anon bind
+        extra_args = {}
+        # Use DN and password if set. Otherwise, use anononymous bind.
         if bind_dn and bind_password:
-            try:
-                self.conn = ldap3.Connection(
-                    server_pool,
-                    user=bind_dn,
-                    password=bind_password,
-                    auto_bind=True
-                )
-            except LDAPException as err:
-                logging.error('Error establishing LDAP connection: %s', err)
-                # re-raise to be caught elsewhere
-                raise
-        else:
-            try:
-                self.conn = ldap3.Connection(server_pool, auto_bind=True)
-            except LDAPException as err:
-                logging.error('Error establishing LDAP connection: %s', err)
-                # re-raise to be caught elsewhere
-                raise
+            extra_args.update({'user': bind_dn, 'password': bind_password})
+
+        try:
+            self.conn = ldap3.Connection(server_pool, auto_bind=True,
+                                         **extra_args)
+        except LDAPException as err:
+            logging.error('Error establishing LDAP connection: %s', err)
+            # re-raise to be caught elsewhere
+            raise
 
     def find_user(self, netid, all_attributes=False):
         if netid:
