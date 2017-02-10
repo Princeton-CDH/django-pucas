@@ -24,12 +24,30 @@ class LDAPSearch(object):
         server_pool = ldap3.ServerPool(ldap_servers,
             ldap3.ROUND_ROBIN, active=True, exhaust=5)
 
-        try:
-            self.conn = ldap3.Connection(server_pool, auto_bind=True)
-        except LDAPException as err:
-            logging.error('Error establishing LDAP connection: %s', err)
-            # re-raise to be caught elsewhere
-            raise
+        # Load username (in DN format) and password, if in settings
+        DN = settings.PUCAS_LDAP.get('DN', None)
+        password = settings.PUCAS_LDAP.get('PASSWORD', None)
+
+        # If DN and password exist, use them. Otherwise, try an anon bind
+        if DN and password:
+            try:
+                self.conn = ldap3.Connection(
+                    server_pool,
+                    user=DN,
+                    password=password,
+                    auto_bind=True
+                )
+            except LDAPException as err:
+                logging.error('Error establishing LDAP connection: %s', err)
+                # re-raise to be caught elsewhere
+                raise
+        else:
+            try:
+                self.conn = ldap3.Connection(server_pool, auto_bind=True)
+            except LDAPException as err:
+                logging.error('Error establishing LDAP connection: %s', err)
+                # re-raise to be caught elsewhere
+                raise
 
     def find_user(self, netid, all_attributes=False):
         if netid:
