@@ -35,6 +35,8 @@ class TestSignals(TestCase):
 class TestLDAPSearch(TestCase):
 
     ldap_servers = ['lds81', 'ldap42', 'ld4all']
+    dn = 'uid=foo,o= bar org,c=us'
+    password = 'baz'
 
     @mock.patch('pucas.ldap.ldap3')
     @override_settings(PUCAS_LDAP={'SERVERS': ldap_servers})
@@ -58,38 +60,19 @@ class TestLDAPSearch(TestCase):
         mockldap3.Connection.assert_called_with(mockldap3.ServerPool.return_value,
             auto_bind=True)
 
-        with pytest.raises(LDAPException):
-            mockldap3.Connection.side_effect = LDAPException
+        with override_settings(PUCAS_LDAP={
+            'SERVERS': self.ldap_servers,
+            'BIND_DN': self.dn,
+            'BIND_PASSWORD': self.password,
+         }):
             LDAPSearch()
-
-    dn = 'uid=foo,o=bar organization,cn=us'
-
-    @mock.patch('pucas.ldap.ldap3')
-    @override_settings(PUCAS_LDAP={'SERVERS': ldap_servers, 'DN': dn, 'PASSWORD': 'baz'})
-    def test_simple_bind_init(self, mockldap3):
-        # initialize and then check expected behavior against
-        # mock ldap3
-        LDAPSearch()
-
-        test_servers = []
-        for test_server in self.ldap_servers:
-            mockldap3.Server.assert_any_call(test_server,
-                get_info=mockldap3.ALL, use_ssl=True)
-
-        # initialized servers are collected into server pool
-        servers = [mockldap3.Server.return_value
-                   for test_server in self.ldap_servers]
-        mockldap3.ServerPool.assert_called_with(servers,
-            mockldap3.ROUND_ROBIN, active=True, exhaust=5)
-
-        # server pool is used for connection
-        mockldap3.Connection.assert_called_with(mockldap3.ServerPool.return_value,
-            auto_bind=True, user=self.dn, password='baz')
+            # server pool is used for connection, now with password
+            mockldap3.Connection.assert_called_with(mockldap3.ServerPool.return_value,
+                auto_bind=True, user=self.dn, password=self.password)
 
         with pytest.raises(LDAPException):
             mockldap3.Connection.side_effect = LDAPException
             LDAPSearch()
-
 
 
     @mock.patch('pucas.ldap.ldap3')
