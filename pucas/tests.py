@@ -35,6 +35,8 @@ class TestSignals(TestCase):
 class TestLDAPSearch(TestCase):
 
     ldap_servers = ['lds81', 'ldap42', 'ld4all']
+    dn = 'uid=foo,o= bar org,c=us'
+    password = 'baz'
 
     @mock.patch('pucas.ldap.ldap3')
     @override_settings(PUCAS_LDAP={'SERVERS': ldap_servers})
@@ -58,9 +60,20 @@ class TestLDAPSearch(TestCase):
         mockldap3.Connection.assert_called_with(mockldap3.ServerPool.return_value,
             auto_bind=True)
 
+        with override_settings(PUCAS_LDAP={
+            'SERVERS': self.ldap_servers,
+            'BIND_DN': self.dn,
+            'BIND_PASSWORD': self.password,
+         }):
+            LDAPSearch()
+            # server pool is used for connection, now with password
+            mockldap3.Connection.assert_called_with(mockldap3.ServerPool.return_value,
+                auto_bind=True, user=self.dn, password=self.password)
+
         with pytest.raises(LDAPException):
             mockldap3.Connection.side_effect = LDAPException
             LDAPSearch()
+
 
     @mock.patch('pucas.ldap.ldap3')
     @override_settings(PUCAS_LDAP={'SERVERS': ldap_servers,

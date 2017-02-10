@@ -12,10 +12,10 @@ django-pucas
 .. image:: https://landscape.io/github/Princeton-CDH/django-pucas/develop/landscape.svg?style=flat
    :target: https://landscape.io/github/Princeton-CDH/django-pucas/develop
    :alt: Code Health
-   
+
 .. image:: https://requires.io/github/Princeton-CDH/django-pucas/requirements.svg?branch=develop
      :target: https://requires.io/github/Princeton-CDH/django-pucas/requirements/?branch=develop
-     :alt: Requirements Status   
+     :alt: Requirements Status
 
 **django-pucas** is a reusable `Django`_ application to simplify logging
 into a Django application with CAS using `django-cas-ng`_.  Login and
@@ -97,8 +97,13 @@ Add required configurations to ``settings.py``:
         # not handled by attribute map.  Method should take a user
         # object and ldap search result.
         'EXTRA_USER_INIT': 'myproj.myapp.models.init_profile_from_ldap'
+        'BASE_DN': 'uid=username,o=your org,c=country_code',
+        'BASE_PASSWORD': 'secreupasswordforyourldap',
     }
 
+* Note: ``BASE_DN`` and ``BASE_PASSWORD`` are optional if you want
+        to bind anonymously. Add them if they are required by your LDAP.
+        This supports user/pass authentication, but not yet uid only.
 
 Run migrations to create database tables required by django-cas-ng::
 
