@@ -120,7 +120,7 @@ An example of a login template with local branding is provided at
 ``pucas/templates/pucas/sample-pu-login.html`` using re-usable template
 snippets that can be adapted or re-used as appropriate.
 
-For Django 1.8, you will need to override login.html as a whole, as
+For Django 1.8, you will need to override ``admin/login.html`` as a whole, as
 extending the login template with itself causes a recursion error.
 
 Usage
