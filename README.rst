@@ -1,20 +1,20 @@
 django-pucas
 ============
 
-.. image:: https://travis-ci.org/Princeton-CDH/django-pucas.svg?branch=master
+.. image:: https://travis-ci.org/Princeton-CDH/django-pucas.svg?branch=develop
    :target: https://travis-ci.org/Princeton-CDH/django-pucas
    :alt: Build status
 
-.. image:: https://codecov.io/gh/Princeton-CDH/django-pucas/branch/master/graph/badge.svg
+.. image:: https://codecov.io/gh/Princeton-CDH/django-pucas/branch/develop/graph/badge.svg
   :target: https://codecov.io/gh/Princeton-CDH/django-pucas
   :alt: Code Coverage
 
-.. image:: https://landscape.io/github/Princeton-CDH/django-pucas/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/Princeton-CDH/django-pucas/master
+.. image:: https://landscape.io/github/Princeton-CDH/django-pucas/develop/landscape.svg?style=flat
+   :target: https://landscape.io/github/Princeton-CDH/django-pucas/develop
    :alt: Code Health
 
-.. image:: https://requires.io/github/Princeton-CDH/django-pucas/requirements.svg?branch=master
-     :target: https://requires.io/github/Princeton-CDH/django-pucas/requirements/?branch=master
+.. image:: https://requires.io/github/Princeton-CDH/django-pucas/requirements.svg?branch=develop
+     :target: https://requires.io/github/Princeton-CDH/django-pucas/requirements/?branch=develop
      :alt: Requirements Status
 
 **django-pucas** is a reusable `Django`_ application to simplify logging
