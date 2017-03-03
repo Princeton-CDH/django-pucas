@@ -1,0 +1,7 @@
+{# customized CAS login snippet with Princeton branding #}
+{# use with pu-login.css for styles #}
+<div class="cas-login">
+  <a href="{% url 'cas_ng_login' %}?next={{ request.GET.next }}"><span class="button grp-button">Login with Princeton CAS</span></a>
+  <p>Or login with a local site account:</p>
+</div>
+

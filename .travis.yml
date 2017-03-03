@@ -1,0 +1,27 @@
+language: python
+
+python:
+  - "2.7"
+  - "3.5"
+
+env:
+  - DJANGO=1.8
+  - DJANGO=1.9
+  - DJANGO=1.10
+
+before_install:
+  - pip install --upgrade pytest
+
+install:
+  - pip install -q Django==$DJANGO
+  - pip install -e .
+  - pip install -e '.[test]'
+  - pip install codecov
+  - cp ci/testsettings.py testsettings.py
+  - python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> testsettings.py
+
+script:
+  - py.test --cov=pucas
+
+after_success:
+- codecov
