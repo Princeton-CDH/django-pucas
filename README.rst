@@ -103,7 +103,7 @@ Add required configurations to ``settings.py``:
 
 * Note: ``BASE_DN`` and ``BASE_PASSWORD`` are optional if you want
         to bind anonymously. Add them if they are required by your LDAP.
-        This supports user/pass authentication, but not yet uid only.
+        This supports user/pass authentication.
 
 Run migrations to create database tables required by django-cas-ng::
 
@@ -119,6 +119,9 @@ as needed.
 An example of a login template with local branding is provided at
 ``pucas/templates/pucas/sample-pu-login.html`` using re-usable template
 snippets that can be adapted or re-used as appropriate.
+
+For Django 1.8, you will need to override login.html as a whole, as
+extending the login template with itself causes a recursion error.
 
 Usage
 -----
@@ -172,4 +175,3 @@ the tests requires a minimal settings file for Django required configurations.
 
     pip install -e '.[test]'
     py.test
-
