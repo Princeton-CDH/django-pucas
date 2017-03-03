@@ -3,7 +3,7 @@ CHANGELOG
 
 0.5 Django-Pucas
 ----------------
-Initial release of Django plugin for CAS authentication with local Princeton setup
+Initial release of Django plugin for CAS authentication with local Princeton University setup
 in mind. Features below are provided in the form of user stories.
 
 Developer
