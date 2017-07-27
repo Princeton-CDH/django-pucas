@@ -30,12 +30,12 @@ support for prepopulating user account data based on an LDAP search.
 Installation
 ------------
 
-Use pip to install from GitHub::
+Use pip to install::
 
-    pip install git+https://github.com/Princeton-CDH/django-pucas.git#egg=pucas
+    pip install pucas
 
-Use ``@master`` or ``@1.0`` to install a specific tagged release or
-branch (e.g., for the lastest code on ``develop``)::
+You can also install from Github.  Use ``@master`` or ``@0.5`` to install a
+specific tagged release or branch (e.g., for the lastest code on ``develop``)::
 
     pip install git+https://github.com/Princeton-CDH/django-pucas.git@develop#egg=pucas
 
