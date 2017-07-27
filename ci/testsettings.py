@@ -6,4 +6,11 @@ DATABASES = {
     }
 }
 
+INSTALLED_APPS = (
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django_cas_ng',
+    'pucas',
+)
+
 # SECRET_KEY = ''

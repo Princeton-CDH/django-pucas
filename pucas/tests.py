@@ -5,6 +5,7 @@ except ImportError:
     # python 2.7
     import mock
 from django.conf import settings
+from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.utils.six import StringIO
 from ldap3.core.exceptions import LDAPException
@@ -233,6 +234,11 @@ class TestLDAPSearchCommand(TestCase):
         output = self.cmd.stderr.getvalue()
         assert error_message in output
 
+    def test_call_command(self, mock_ldapsearch):
+        call_command('ldapsearch', 'jdoe')
+        mock_ldapsearch.return_value.find_user.assert_called_with('jdoe',
+            all_attributes=False)
+
 
 @mock.patch('pucas.management.commands.createcasuser.get_user_model')
 @mock.patch('pucas.management.commands.createcasuser.LDAPSearch')
@@ -279,3 +285,9 @@ class TestCreateCasUserCommand(TestCase):
         self.cmd.handle(netids=['jdoe'], admin=False, staff=False)
         output = self.cmd.stderr.getvalue()
         assert "LDAP information for 'jdoe' not found" in output
+
+    def test_call_command(self, mock_userinfo, mock_ldapsearch, mock_getuser):
+        mock_ldapsearch.return_value.find_user.side_effect = LDAPSearchException
+        call_command('createcasuser', 'jdoe', '--staff')
+        mock_ldapsearch.return_value.find_user.assert_called_with('jdoe')
+

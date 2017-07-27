@@ -1,8 +1,15 @@
 CHANGELOG
 =========
 
+0.5.1
+-----
+
+* Now available via pip install from pypi!
+* Minor unit test updates to improve coverage.
+
 0.5 Django-Pucas
 ----------------
+
 Initial release of Django plugin for CAS authentication with local Princeton University setup
 in mind. Features below are provided in the form of user stories.
 
