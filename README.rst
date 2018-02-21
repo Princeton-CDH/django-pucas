@@ -180,7 +180,7 @@ the tests requires a minimal settings file for Django required configurations.
 License
 -------
 
-`django-pucas` is distributed under the Apache 2.0 License.
+**django-pucas** is distributed under the Apache 2.0 License.
 
 
 ©2016 Trustees of Princeton University.  Permission granted via
