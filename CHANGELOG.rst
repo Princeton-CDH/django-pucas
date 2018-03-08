@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+0.5.2
+-----
+
+* Document permissions in the README.
+
 0.5.1
 -----
 
