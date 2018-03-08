@@ -175,3 +175,16 @@ the tests requires a minimal settings file for Django required configurations.
 
     pip install -e '.[test]'
     py.test
+
+
+License
+-------
+
+**django-pucas** is distributed under the Apache 2.0 License.
+
+
+©2016 Trustees of Princeton University.  Permission granted via
+Princeton Docket #18-3398-1 for distribution online under a standard Open Source
+license.  Ownership rights transferred to Rebecca Koeser provided software
+is distributed online via open source.
+
