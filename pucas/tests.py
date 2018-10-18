@@ -8,13 +8,36 @@ from django.conf import settings
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.utils.six import StringIO
-from ldap3.core.exceptions import LDAPException
+from ldap3.core.exceptions import LDAPException, LDAPCursorError
 import pytest
 
 from pucas.ldap import LDAPSearch, LDAPSearchException, \
     user_info_from_ldap
 from pucas.signals import cas_login
 from pucas.management.commands import ldapsearch, createcasuser
+
+
+class MockLDAPInfo(object):
+    '''Simulate ldap result object with ldap3 specific behavior for getattr'''
+    def __init__(self, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+    def __getattr__(self, attr):
+        if attr in self.__dict__:
+            return self.__dict__[attr]
+        raise LDAPCursorError
+
+class TestMockLDAPInfo(TestCase):
+
+    def test_init(self):
+        mock_info = MockLDAPInfo(a=1, b=2)
+        assert mock_info.a == 1
+        assert mock_info.b == 2
+
+    def test_getattr(self):
+        mock_info = MockLDAPInfo(a=1, b=2)
+        with pytest.raises(LDAPCursorError):
+            foo = mock_info.c
 
 
 class TestSignals(TestCase):
@@ -149,7 +172,7 @@ def extra_user_init(user, user_info):
 class TestUserInfo(TestCase):
 
     test_attr_map = {'first_name': 'givenName', 'last_name': 'surname',
-        'email': 'mail'}
+                     'email': ['mail', 'eduPerson']}
 
     @override_settings(PUCAS_LDAP={})
     def test_no_attrs(self, mock_ldapsearch):
@@ -172,14 +195,39 @@ class TestUserInfo(TestCase):
         # user save should not be called - no data
         mockuser.save.assert_not_called()
 
-        # simulate user info returned
-        mock_ldapinfo = mock.Mock(givenName='John', surname='Doe',
-            mail='jdoe@example.com', extra='foo')
+        mock_ldapinfo = MockLDAPInfo(
+                        eduPerson='jdoe2@example.com', givenName='John', surname='Doe',
+                        mail='jdoe@example.com', extra='foo'
+                    )
+        # first test that list style attributes are set in order, and string
+        # attributes are set as given
         mock_ldapsearch.return_value.find_user.return_value = mock_ldapinfo
         user_info_from_ldap(mockuser)
         assert mockuser.first_name == mock_ldapinfo.givenName
         assert mockuser.last_name == mock_ldapinfo.surname
         assert mockuser.email == mock_ldapinfo.mail
+        mockuser.save.assert_called_with()
+
+        # second test that should pass over an unset eduPerson attr and
+        # set using givenName in list
+        # NOTE: recreating mock to clear all assigned attrs
+        mockuser = mock.Mock(username='jdoe')
+        delattr(mock_ldapinfo, 'mail')
+        user_info_from_ldap(mockuser)
+        assert mockuser.first_name == mock_ldapinfo.givenName
+        assert mockuser.last_name == mock_ldapinfo.surname
+        assert mockuser.email == mock_ldapinfo.eduPerson
+        mockuser.save.assert_called_with()
+
+        # missing attribute altogether should result in an empty string
+        delattr(mock_ldapinfo, 'givenName')
+        delattr(mock_ldapinfo, 'surname')
+        mockuser = mock.Mock(username='jdoe')
+        mock_ldapsearch.return_value.find_user.return_value = mock_ldapinfo
+        user_info_from_ldap(mockuser)
+        assert mockuser.first_name == ''
+        assert mockuser.last_name == ''
+        assert mockuser.email == mock_ldapinfo.eduPerson
         mockuser.save.assert_called_with()
 
     @override_settings(PUCAS_LDAP={'ATTRIBUTE_MAP': test_attr_map,
@@ -290,4 +338,3 @@ class TestCreateCasUserCommand(TestCase):
         mock_ldapsearch.return_value.find_user.side_effect = LDAPSearchException
         call_command('createcasuser', 'jdoe', '--staff')
         mock_ldapsearch.return_value.find_user.assert_called_with('jdoe')
-

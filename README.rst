@@ -88,10 +88,12 @@ Add required configurations to ``settings.py``:
         # attributes to request from the LDAP server
         'ATTRIBUTES': ['givenName', 'sn', 'mail'],
         # mapping of User attributes to LDAP attributes
+        # if passed list for the value, the first attribute to return a
+        # value will be used
         'ATTRIBUTE_MAP': {
             'first_name': 'givenName',
             'last_name': 'sn',
-            'email': 'mail'
+            'email': ['mail', 'eduPerson']
         },
         # Optional local method to do additional user initialization
         # not handled by attribute map.  Method should take a user
@@ -187,4 +189,3 @@ License
 Princeton Docket #18-3398-1 for distribution online under a standard Open Source
 license.  Ownership rights transferred to Rebecca Koeser provided software
 is distributed online via open source.
-
