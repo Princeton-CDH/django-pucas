@@ -23,7 +23,7 @@ class MockLDAPInfo(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
     def __getattr__(self, attr):
-        # __getattr__ only gets called when the default attribue access
+        # __getattr__ only gets called when the default attribute access
         # falls through, so in this case, we always want that to raise the
         # cursor error
         raise LDAPCursorError
