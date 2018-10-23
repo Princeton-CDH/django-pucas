@@ -27,6 +27,11 @@ support for prepopulating user account data based on an LDAP search.
 .. _Django: https://www.djangoproject.com/
 .. _django-cas-ng: https://github.com/mingchen/django-cas-ng
 
+**django-pucas** is tested under:
+
+* Django ``1.8-2.1``
+* Python ``2.7, 3.5, 3.6`` (excluding ``2.7`` for Django ``2+``)
+
 Installation
 ------------
 
