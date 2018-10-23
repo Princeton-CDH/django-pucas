@@ -89,7 +89,7 @@ def user_info_from_ldap(user):
             # handle the LDAPCursorError and set None to empty string.
 
             # if the user passed a list, try in order until we get the attr
-            # or we fail to do so, in which case, continue on for now
+            # or we fail to do so.
             if isinstance(ldap_attr, list):
                 for val in ldap_attr:
                     try:
