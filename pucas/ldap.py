@@ -88,26 +88,22 @@ def user_info_from_ldap(user):
             # multiple attributes OR where it is missing, in which case
             # handle the LDAPCursorError and set None to empty string.
 
-            # if the user passed a list, try in order until we get the attr
-            # or we fail to do so.
-            if isinstance(ldap_attr, list):
-                for val in ldap_attr:
-                    try:
-                        setattr(user, user_attr, str(getattr(user_info, val)))
-                        break
-                    except LDAPCursorError:
-                        # NOTE: it would be more efficient to do this as a single
-                        # catchall if the attribute ends up unset, but
-                        # the behavior of Mock __getattr__ (which returns a
-                        # a Mock if undefined), makes it hard to test.
-                        # Opted for testable over minor efficiency gain.
-                        setattr(user, user_attr, '')
-            else:
-            # if the user passed a string, try to set it, catch error
+            # if just a string, convert to a list so handling can be uniform
+            if isinstance(ldap_attr, str):
+                ldap_attr = [ldap_attr]
+
+            # iterate through the list items and break on the first one to
+            # correct set without raising LDAPCursorError
+            for val in ldap_attr:
                 try:
-                    setattr(user, user_attr, str(getattr(user_info, ldap_attr)))
+                    setattr(user, user_attr, str(getattr(user_info, val)))
+                    break
                 except LDAPCursorError:
-                    setattr(user, user_attr, '')
+                    pass
+            # user getattr to check for a still unset value, in which case
+            # set it to an empty string
+            if not getattr(user, user_attr, None):
+                setattr(user, user_attr, '')
 
         # optional custom user-init method set in django config
         extra_init = settings.PUCAS_LDAP.get('EXTRA_USER_INIT', None)
