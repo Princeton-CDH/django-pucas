@@ -23,8 +23,9 @@ class MockLDAPInfo(object):
         for k, v in kwargs.items():
             setattr(self, k, v)
     def __getattr__(self, attr):
-        if attr in self.__dict__:
-            return self.__dict__[attr]
+        # __getattr__ only gets called when the default attribue access
+        # falls through, so in this case, we always want that to raise the
+        # cursor error
         raise LDAPCursorError
 
 class TestMockLDAPInfo(TestCase):
@@ -184,7 +185,6 @@ class TestUserInfo(TestCase):
     @override_settings(PUCAS_LDAP={'ATTRIBUTE_MAP': test_attr_map})
     def test_attrs(self, mock_ldapsearch):
         mockuser = mock.Mock(username='jdoe')
-
         # simulate no user info returned
         mock_ldapsearch.return_value.find_user.return_value = None
         user_info_from_ldap(mockuser)
@@ -196,8 +196,11 @@ class TestUserInfo(TestCase):
         mockuser.save.assert_not_called()
 
         mock_ldapinfo = MockLDAPInfo(
-                        eduPerson='jdoe2@example.com', givenName='John', surname='Doe',
-                        mail='jdoe@example.com', extra='foo'
+                        eduPerson='jdoe2@example.com',
+                        givenName='John',
+                        surname='Doe',
+                        mail='jdoe@example.com',
+                        extra='foo'
                     )
         # first test that list style attributes are set in order, and string
         # attributes are set as given
@@ -211,7 +214,6 @@ class TestUserInfo(TestCase):
         # second test that should pass over an unset eduPerson attr and
         # set using givenName in list
         # NOTE: recreating mock to clear all assigned attrs
-        mockuser = mock.Mock(username='jdoe')
         delattr(mock_ldapinfo, 'mail')
         user_info_from_ldap(mockuser)
         assert mockuser.first_name == mock_ldapinfo.givenName
@@ -223,6 +225,10 @@ class TestUserInfo(TestCase):
         delattr(mock_ldapinfo, 'givenName')
         delattr(mock_ldapinfo, 'surname')
         mockuser = mock.Mock(username='jdoe')
+        # set to none to avoid Mock returning a mock and default behavior of
+        # getattr
+        mockuser.first_name = None
+        mockuser.last_name = None
         mock_ldapsearch.return_value.find_user.return_value = mock_ldapinfo
         user_info_from_ldap(mockuser)
         assert mockuser.first_name == ''
