@@ -7,7 +7,6 @@ CHANGELOG
 * Improve handling for missing LDAP attributes.
 * Document tested Django and Python versions.
 
-
 0.5.2
 -----
 
