@@ -85,15 +85,17 @@ def user_info_from_ldap(user):
     if user_info:
         for user_attr, ldap_attr in attr_map.items():
             # Handle issues where an attribute may need to be populated by
-            # multiple attributes OR where it is missing, in which case
-            # handle the LDAPCursorError and set None to empty string.
+            # multiple attributes OR where it is missing.
 
-            # if just a string, convert to a list so handling can be uniform
+            # if just a string, convert to a list so handling can be uniform,
+            # in cases where a field is multivalued.
             if isinstance(ldap_attr, str):
                 ldap_attr = [ldap_attr]
 
             # iterate through the list items and break on the first one to
             # correct set without raising LDAPCursorError
+            # This is a simplification for multivalued fields, since
+            # typically we're mapping to only one value.
             for val in ldap_attr:
                 try:
                     setattr(user, user_attr, str(getattr(user_info, val)))
@@ -101,7 +103,9 @@ def user_info_from_ldap(user):
                 except LDAPCursorError:
                     pass
             # user getattr to check for a still unset value, in which case
-            # set it to an empty string
+            # set it to an empty string, used in situations where
+            # a user is being updated -- and ot make sure values are
+            # strings, not lists
             if not getattr(user, user_attr, None):
                 setattr(user, user_attr, '')
 
