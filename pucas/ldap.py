@@ -78,7 +78,8 @@ def user_info_from_ldap(user):
     # if no map is configured, nothing to do
     if not attr_map:
         # is logging sufficient here? or should it be an exception
-        logging.warn('No attribute map configured; not populating user info from ldap')
+        logging.warning('No attribute map configured; not populating user info'
+                        ' from ldap')
         return
 
     user_info = LDAPSearch().find_user(user.username)

@@ -119,8 +119,7 @@ class TestLDAPSearch(TestCase):
 
         with pytest.raises(LDAPSearchException) as search_err:
             ldsearch.find_user(netid)
-
-        assert 'No match found for %s' % netid in str(search_err)
+        assert 'No match found for %s' % netid in str(search_err.value)
         # search should use configured values
         ldsearch.conn.search.assert_called_with(settings.PUCAS_LDAP['SEARCH_BASE'],
             settings.PUCAS_LDAP['SEARCH_FILTER'] % {'user': netid},
@@ -131,7 +130,8 @@ class TestLDAPSearch(TestCase):
         with pytest.raises(LDAPSearchException) as search_err:
             ldsearch.find_user(netid)
 
-        assert 'Found more than one entry for %s' % netid in str(search_err)
+        assert 'Found more than one entry for %s' % netid in \
+            str(search_err.value)
 
         # simulate one match
         userinfo = mock.Mock()
@@ -162,7 +162,7 @@ class TestLDAPSearch(TestCase):
             with override_settings(PUCAS_LDAP=bad_cfg):
                 with pytest.raises(LDAPSearchException) as search_err:
                     ldsearch.find_user(netid)
-            assert 'LDAP is not configured for user lookup' in str(search_err)
+            assert 'LDAP is not configured for user lookup' in str(search_err.value)
 
 
 def extra_user_init(user, user_info):
