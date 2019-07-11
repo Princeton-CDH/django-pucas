@@ -9,7 +9,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as readme:
 # allow setup.py to be run from any path
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
-REQUIREMENTS = ['django>=1.8', 'django-cas-ng', 'ldap3']
+REQUIREMENTS = ['django>=1.8', 'django-cas-ng>=3.6', 'ldap3']
 TEST_REQUIREMENTS = ['pytest', 'pytest-django', 'pytest-cov']
 if sys.version_info < (3, 0):
     TEST_REQUIREMENTS.append('mock')
@@ -38,6 +38,10 @@ setup(
         'Framework :: Django :: 1.8',
         'Framework :: Django :: 1.9',
         'Framework :: Django :: 1.10',
+        'Framework :: Django :: 1.11',
+        'Framework :: Django :: 2.0',
+        'Framework :: Django :: 2.1',
+        'Framework :: Django :: 2.2',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
@@ -46,6 +50,8 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: System :: Systems Administration :: Authentication/Directory',
         'Topic :: System :: Systems Administration :: Authentication/Directory :: LDAP',
