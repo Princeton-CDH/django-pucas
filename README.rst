@@ -27,6 +27,11 @@ support for prepopulating user account data based on an LDAP search.
 .. _Django: https://www.djangoproject.com/
 .. _django-cas-ng: https://github.com/mingchen/django-cas-ng
 
+**django-pucas** is tested under:
+
+* Django ``1.8-2.1``
+* Python ``2.7, 3.5, 3.6`` (excluding ``2.7`` for Django ``2+``)
+
 Installation
 ------------
 
@@ -88,10 +93,12 @@ Add required configurations to ``settings.py``:
         # attributes to request from the LDAP server
         'ATTRIBUTES': ['givenName', 'sn', 'mail'],
         # mapping of User attributes to LDAP attributes
+        # if passed list for the value, the first attribute to return a
+        # value will be used
         'ATTRIBUTE_MAP': {
             'first_name': 'givenName',
             'last_name': 'sn',
-            'email': 'mail'
+            'email': ['mail', 'eduPerson']
         },
         # Optional local method to do additional user initialization
         # not handled by attribute map.  Method should take a user
@@ -187,4 +194,3 @@ License
 Princeton Docket #18-3398-1 for distribution online under a standard Open Source
 license.  Ownership rights transferred to Rebecca Koeser provided software
 is distributed online via open source.
-

@@ -2,7 +2,7 @@ import ldap3
 import logging
 import importlib
 
-from ldap3.core.exceptions import LDAPException
+from ldap3.core.exceptions import LDAPException, LDAPCursorError
 from django.conf import settings
 
 
@@ -78,15 +78,37 @@ def user_info_from_ldap(user):
     # if no map is configured, nothing to do
     if not attr_map:
         # is logging sufficient here? or should it be an exception
-        logging.warn('No attribute map configured; not populating user info from ldap')
+        logging.warning('No attribute map configured; not populating user info'
+                        ' from ldap')
         return
 
     user_info = LDAPSearch().find_user(user.username)
     if user_info:
         for user_attr, ldap_attr in attr_map.items():
-            # NOTE: is it possible some values are not set at all here,
-            # in which case we'd get 'None' string values set?
-            setattr(user, user_attr, str(getattr(user_info, ldap_attr)))
+            # Handle issues where an attribute may need to be populated by
+            # multiple attributes OR where it is missing.
+
+            # if just a string, convert to a list so handling can be uniform,
+            # in cases where a field is multivalued.
+            if isinstance(ldap_attr, str):
+                ldap_attr = [ldap_attr]
+
+            # iterate through the list items and break on the first one to
+            # correct set without raising LDAPCursorError
+            # This is a simplification for multivalued fields, since
+            # typically we're mapping to only one value.
+            for val in ldap_attr:
+                try:
+                    setattr(user, user_attr, str(getattr(user_info, val)))
+                    break
+                except LDAPCursorError:
+                    pass
+            # user getattr to check for a still unset value, in which case
+            # set it to an empty string, used in situations where
+            # a user is being updated -- and ot make sure values are
+            # strings, not lists
+            if not getattr(user, user_attr, None):
+                setattr(user, user_attr, '')
 
         # optional custom user-init method set in django config
         extra_init = settings.PUCAS_LDAP.get('EXTRA_USER_INIT', None)
@@ -98,4 +120,3 @@ def user_info_from_ldap(user):
             extra_init_func(user, user_info)
 
         user.save()
-

@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+0.6
+-----
+* Add support for multiple fallbacks on LDAP attributes. See `PR #3 <https://github.com/Princeton-CDH/django-pucas/pull/>`_.
+* Improve handling for missing LDAP attributes.
+* Document tested Django and Python versions.
+
 0.5.2
 -----
 
