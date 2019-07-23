@@ -1,20 +1,20 @@
 django-pucas
 ============
 
-.. image:: https://travis-ci.org/Princeton-CDH/django-pucas.svg?branch=develop
+.. image:: https://travis-ci.org/Princeton-CDH/django-pucas.svg?branch=master
    :target: https://travis-ci.org/Princeton-CDH/django-pucas
    :alt: Build status
 
-.. image:: https://codecov.io/gh/Princeton-CDH/django-pucas/branch/develop/graph/badge.svg
+.. image:: https://codecov.io/gh/Princeton-CDH/django-pucas/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/Princeton-CDH/django-pucas
   :alt: Code Coverage
 
-.. image:: https://landscape.io/github/Princeton-CDH/django-pucas/develop/landscape.svg?style=flat
-   :target: https://landscape.io/github/Princeton-CDH/django-pucas/develop
-   :alt: Code Health
+.. image:: https://www.codefactor.io/repository/github/princeton-cdh/django-pucas/badge
+   :target: https://www.codefactor.io/repository/github/princeton-cdh/django-pucas
+   :alt: CodeFactor
 
-.. image:: https://requires.io/github/Princeton-CDH/django-pucas/requirements.svg?branch=develop
-     :target: https://requires.io/github/Princeton-CDH/django-pucas/requirements/?branch=develop
+.. image:: https://requires.io/github/Princeton-CDH/django-pucas/requirements.svg?branch=master
+     :target: https://requires.io/github/Princeton-CDH/django-pucas/requirements/?branch=master
      :alt: Requirements Status
 
 **django-pucas** is a reusable `Django`_ application to simplify logging
@@ -26,6 +26,13 @@ support for prepopulating user account data based on an LDAP search.
 
 .. _Django: https://www.djangoproject.com/
 .. _django-cas-ng: https://github.com/mingchen/django-cas-ng
+
+**django-pucas** is tested under:
+
+* Django ``1.8-2.2``
+* Python ``2.7, 3.5-3.7`` (excluding ``2.7`` for Django ``2+``)
+
+**django-pucas** requires **django-cas-ng** 3.6 or greater.
 
 Installation
 ------------
@@ -88,10 +95,12 @@ Add required configurations to ``settings.py``:
         # attributes to request from the LDAP server
         'ATTRIBUTES': ['givenName', 'sn', 'mail'],
         # mapping of User attributes to LDAP attributes
+        # if passed list for the value, the first attribute to return a
+        # value will be used
         'ATTRIBUTE_MAP': {
             'first_name': 'givenName',
             'last_name': 'sn',
-            'email': 'mail'
+            'email': ['mail', 'eduPersonPrincipalName']
         },
         # Optional local method to do additional user initialization
         # not handled by attribute map.  Method should take a user
@@ -187,4 +196,3 @@ License
 Princeton Docket #18-3398-1 for distribution online under a standard Open Source
 license.  Ownership rights transferred to Rebecca Koeser provided software
 is distributed online via open source.
-
