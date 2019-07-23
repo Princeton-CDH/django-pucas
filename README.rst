@@ -9,9 +9,9 @@ django-pucas
   :target: https://codecov.io/gh/Princeton-CDH/django-pucas
   :alt: Code Coverage
 
-.. image:: https://landscape.io/github/Princeton-CDH/django-pucas/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/Princeton-CDH/django-pucas/master
-   :alt: Code Health
+.. image:: https://www.codefactor.io/repository/github/princeton-cdh/django-pucas/badge
+   :target: https://www.codefactor.io/repository/github/princeton-cdh/django-pucas
+   :alt: CodeFactor
 
 .. image:: https://requires.io/github/Princeton-CDH/django-pucas/requirements.svg?branch=master
      :target: https://requires.io/github/Princeton-CDH/django-pucas/requirements/?branch=master
