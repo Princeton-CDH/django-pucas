@@ -9,7 +9,7 @@ django-pucas
   :target: https://codecov.io/gh/Princeton-CDH/django-pucas
   :alt: Code Coverage
 
-.. image:: https://landscape.io/github/Princeton-CDH/django-pucas/master/landscape.svg?style=plastic
+.. image:: https://landscape.io/github/Princeton-CDH/django-pucas/master/landscape.svg?style=flat
    :target: https://landscape.io/github/Princeton-CDH/django-pucas/master
    :alt: Code Health
 
