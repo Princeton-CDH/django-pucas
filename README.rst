@@ -1,20 +1,20 @@
 django-pucas
 ============
 
-.. image:: https://travis-ci.org/Princeton-CDH/django-pucas.svg?branch=develop
+.. image:: https://travis-ci.org/Princeton-CDH/django-pucas.svg?branch=master
    :target: https://travis-ci.org/Princeton-CDH/django-pucas
    :alt: Build status
 
-.. image:: https://codecov.io/gh/Princeton-CDH/django-pucas/branch/develop/graph/badge.svg
+.. image:: https://codecov.io/gh/Princeton-CDH/django-pucas/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/Princeton-CDH/django-pucas
   :alt: Code Coverage
 
-.. image:: https://landscape.io/github/Princeton-CDH/django-pucas/develop/landscape.svg?style=flat
-   :target: https://landscape.io/github/Princeton-CDH/django-pucas/develop
-   :alt: Code Health
+.. image:: https://www.codefactor.io/repository/github/princeton-cdh/django-pucas/badge
+   :target: https://www.codefactor.io/repository/github/princeton-cdh/django-pucas
+   :alt: CodeFactor
 
-.. image:: https://requires.io/github/Princeton-CDH/django-pucas/requirements.svg?branch=develop
-     :target: https://requires.io/github/Princeton-CDH/django-pucas/requirements/?branch=develop
+.. image:: https://requires.io/github/Princeton-CDH/django-pucas/requirements.svg?branch=master
+     :target: https://requires.io/github/Princeton-CDH/django-pucas/requirements/?branch=master
      :alt: Requirements Status
 
 **django-pucas** is a reusable `Django`_ application to simplify logging
@@ -100,7 +100,7 @@ Add required configurations to ``settings.py``:
         'ATTRIBUTE_MAP': {
             'first_name': 'givenName',
             'last_name': 'sn',
-            'email': ['mail', 'eduPerson']
+            'email': ['mail', 'eduPersonPrincipalName']
         },
         # Optional local method to do additional user initialization
         # not handled by attribute map.  Method should take a user
