@@ -100,7 +100,7 @@ Add required configurations to ``settings.py``:
         'ATTRIBUTE_MAP': {
             'first_name': 'givenName',
             'last_name': 'sn',
-            'email': ['mail', 'eduPerson']
+            'email': ['mail', 'eduPersonPrincipalName']
         },
         # Optional local method to do additional user initialization
         # not handled by attribute map.  Method should take a user
