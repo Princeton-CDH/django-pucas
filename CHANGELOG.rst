@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+0.7
+----
+* Drop support for Python 2.7
+
 0.6
 -----
 * Add support for multiple fallbacks on LDAP attributes. See `PR #3 <https://github.com/Princeton-CDH/django-pucas/pull/>`_.
