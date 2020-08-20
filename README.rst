@@ -30,9 +30,10 @@ support for prepopulating user account data based on an LDAP search.
 **django-pucas** is tested under:
 
 * Django ``1.8-2.2``
-* Python ``2.7, 3.5-3.7`` (excluding ``2.7`` for Django ``2+``)
+* Python ``3.5-3.7``
 
 **django-pucas** requires **django-cas-ng** 3.6 or greater.
+Support for Python 2 has been dropped.
 
 Installation
 ------------
