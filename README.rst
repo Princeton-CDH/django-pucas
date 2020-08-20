@@ -33,7 +33,6 @@ support for prepopulating user account data based on an LDAP search.
 * Python ``3.5-3.7``
 
 **django-pucas** requires **django-cas-ng** 3.6 or greater.
-Support for Python 2 has been dropped.
 
 Installation
 ------------
