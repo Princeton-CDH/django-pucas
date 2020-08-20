@@ -1,9 +1,4 @@
-try:
-    # python 3
-    from unittest import mock
-except ImportError:
-    # python 2.7
-    import mock
+from unittest import mock
 from django.conf import settings
 from django.core.management import call_command
 from django.test import TestCase, override_settings
