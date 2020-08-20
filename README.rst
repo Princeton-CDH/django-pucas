@@ -174,7 +174,7 @@ the tests requires a minimal settings file for Django required configurations.
 
 - Copy sample test settings and add a secret key::
 
-    cp ci/testsettings.py.sample testsettings.py
+    cp ci/testsettings.py testsettings.py
 
 - To run the tests, either use the configured setup.py test command::
 
