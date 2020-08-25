@@ -17,6 +17,12 @@ django-pucas
      :target: https://requires.io/github/Princeton-CDH/django-pucas/requirements/?branch=master
      :alt: Requirements Status
 
+.. image:: https://img.shields.io/pypi/pyversions/viapy
+   :alt: PyPI - Python Version
+
+.. image:: https://img.shields.io/pypi/djversions/viapy
+   :alt: PyPI - Django Version
+
 **django-pucas** is a reusable `Django`_ application to simplify logging
 into a Django application with CAS using `django-cas-ng`_.  Login and
 creation of user accounts is handled by django-cas-ng; pucas adds
