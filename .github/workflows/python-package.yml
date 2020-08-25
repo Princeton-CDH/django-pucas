@@ -6,7 +6,7 @@ name: Python package
 on: [push, pull_request]
 
 jobs:
-F  build:
+  build:
 
     runs-on: ubuntu-latest
     strategy:
