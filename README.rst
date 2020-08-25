@@ -151,7 +151,7 @@ Two manage commands are provided, for convenience.
 Development instructions
 ------------------------
 
-This git repository uses git flow branching conventions.
+This git repository uses git flow branching conventions, with **main** as the current production release branch.
 
 Initial setup and installation:
 
