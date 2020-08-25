@@ -47,19 +47,11 @@ class Command(BaseCommand):
                     user.save()
 
                 self.stdout.write(
-                    self.style_success("%s user '%s'"  \
+                    self.style.SUCCESS(
+                        "%s user '%s'"
                         % ('Created' if created else 'Updated', netid)))
 
             except LDAPSearchException:
                 self.stderr.write(
-                    self.style.ERROR("LDAP information for '%s' not found"  \
-                        % netid))
-
-    def style_success(self, msg):
-        # workaround to support django 1.8 - style.SUCCESS
-        # only added in django 1.9
-        if hasattr(self.style, 'SUCCESS'):
-            return self.style.SUCCESS(msg)
-        else:
-            return msg
-
+                    self.style.ERROR("LDAP information for '%s' not found"
+                                     % netid))
