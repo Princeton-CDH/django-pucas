@@ -33,10 +33,10 @@ support for prepopulating user account data based on an LDAP search.
 .. _Django: https://www.djangoproject.com/
 .. _django-cas-ng: https://github.com/mingchen/django-cas-ng
 
-**django-pucas** is tested under:
+**django-pucas** is tested against:
 
-* Django ``1.8-2.2``
-* Python ``3.5-3.7``
+* Django ``1.11-3.1``
+* Python ``3.5-3.8``
 
 **django-pucas** requires **django-cas-ng** 3.6 or greater.
 
@@ -135,8 +135,7 @@ An example of a login template with local branding is provided at
 ``pucas/templates/pucas/sample-pu-login.html`` using re-usable template
 snippets that can be adapted or re-used as appropriate.
 
-For Django 1.8, you will need to override ``admin/login.html`` as a whole, as
-extending the login template with itself causes a recursion error.
+Note that login templates have not yet been updated for Django 3.x.
 
 Usage
 -----

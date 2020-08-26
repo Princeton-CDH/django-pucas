@@ -4,6 +4,9 @@ CHANGELOG
 0.7
 ----
 * Drop support for Python 2.7
+* No longer tested against Django 1.8-1.10; now tested against 3.0 and 3.1
+* Add testing for Python 3.8
+* Default branch name for current release is now **main**
 
 0.6
 -----
