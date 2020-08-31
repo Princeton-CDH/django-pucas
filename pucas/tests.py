@@ -1,15 +1,16 @@
+from io import StringIO
 from unittest import mock
+
 from django.conf import settings
 from django.core.management import call_command
 from django.test import TestCase, override_settings
-from django.utils.six import StringIO
-from ldap3.core.exceptions import LDAPException, LDAPCursorError
+from ldap3.core.exceptions import LDAPCursorError, LDAPException
 import pytest
 
 from pucas.ldap import LDAPSearch, LDAPSearchException, \
     user_info_from_ldap
+from pucas.management.commands import createcasuser, ldapsearch
 from pucas.signals import cas_login
-from pucas.management.commands import ldapsearch, createcasuser
 
 
 class MockLDAPInfo(object):
@@ -17,11 +18,13 @@ class MockLDAPInfo(object):
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)
+
     def __getattr__(self, attr):
         # __getattr__ only gets called when the default attribute access
         # falls through, so in this case, we always want that to raise the
         # cursor error
         raise LDAPCursorError
+
 
 class TestMockLDAPInfo(TestCase):
 

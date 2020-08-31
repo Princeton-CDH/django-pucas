@@ -17,6 +17,12 @@ django-pucas
      :target: https://requires.io/github/Princeton-CDH/django-pucas/requirements/?branch=master
      :alt: Requirements Status
 
+.. image:: https://img.shields.io/pypi/pyversions/viapy
+   :alt: PyPI - Python Version
+
+.. image:: https://img.shields.io/pypi/djversions/viapy
+   :alt: PyPI - Django Version
+
 **django-pucas** is a reusable `Django`_ application to simplify logging
 into a Django application with CAS using `django-cas-ng`_.  Login and
 creation of user accounts is handled by django-cas-ng; pucas adds
@@ -27,10 +33,10 @@ support for prepopulating user account data based on an LDAP search.
 .. _Django: https://www.djangoproject.com/
 .. _django-cas-ng: https://github.com/mingchen/django-cas-ng
 
-**django-pucas** is tested under:
+**django-pucas** is tested against:
 
-* Django ``1.8-2.2``
-* Python ``3.5-3.7``
+* Django ``1.11-3.1``
+* Python ``3.5-3.8``
 
 **django-pucas** requires **django-cas-ng** 3.6 or greater.
 
@@ -129,8 +135,7 @@ An example of a login template with local branding is provided at
 ``pucas/templates/pucas/sample-pu-login.html`` using re-usable template
 snippets that can be adapted or re-used as appropriate.
 
-For Django 1.8, you will need to override ``admin/login.html`` as a whole, as
-extending the login template with itself causes a recursion error.
+Note that login templates have not yet been updated for Django 3.x.
 
 Usage
 -----
@@ -151,7 +156,7 @@ Two manage commands are provided, for convenience.
 Development instructions
 ------------------------
 
-This git repository uses git flow branching conventions.
+This git repository uses git flow branching conventions, with **main** as the current production release branch.
 
 Initial setup and installation:
 
@@ -168,7 +173,7 @@ Initial setup and installation:
 Unit Testing
 ^^^^^^^^^^^^^
 
-Unit tests are written with [py.test](http://doc.pytest.org/) but use some
+Unit tests are written with `py.test <http://doc.pytest.org/>`_ but use some
 Django test classes for compatibility with django test suites.  Running
 the tests requires a minimal settings file for Django required configurations.
 
