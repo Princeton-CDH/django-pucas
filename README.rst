@@ -112,11 +112,11 @@ Add required configurations to ``settings.py``:
         # not handled by attribute map.  Method should take a user
         # object and ldap search result.
         'EXTRA_USER_INIT': 'myproj.myapp.models.init_profile_from_ldap'
-        'BASE_DN': 'uid=username,o=your org,c=country_code',
-        'BASE_PASSWORD': 'secreupasswordforyourldap',
+        'BIND_DN': 'uid=username,o=your org,c=country_code',
+        'BIND_PASSWORD': 'secreupasswordforyourldap',
     }
 
-* Note: ``BASE_DN`` and ``BASE_PASSWORD`` are optional if you want
+* Note: ``BIND_DN`` and ``BIND_PASSWORD`` are optional if you want
         to bind anonymously. Add them if they are required by your LDAP.
         This supports user/pass authentication.
 
