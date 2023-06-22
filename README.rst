@@ -1,21 +1,17 @@
 django-pucas
 ============
 
-.. image:: https://travis-ci.org/Princeton-CDH/django-pucas.svg?branch=master
-   :target: https://travis-ci.org/Princeton-CDH/django-pucas
+.. image:: https://github.com/Princeton-CDH/django-pucas/actions/workflows/unit_tests.yml/badge.svg
+   :target: https://github.com/Princeton-CDH/django-pucas/actions/workflows/unit_tests.yml
    :alt: Build status
 
-.. image:: https://codecov.io/gh/Princeton-CDH/django-pucas/branch/master/graph/badge.svg
+.. image:: https://codecov.io/gh/Princeton-CDH/django-pucas/branch/main/graph/badge.svg
   :target: https://codecov.io/gh/Princeton-CDH/django-pucas
   :alt: Code Coverage
 
 .. image:: https://www.codefactor.io/repository/github/princeton-cdh/django-pucas/badge
    :target: https://www.codefactor.io/repository/github/princeton-cdh/django-pucas
    :alt: CodeFactor
-
-.. image:: https://requires.io/github/Princeton-CDH/django-pucas/requirements.svg?branch=master
-     :target: https://requires.io/github/Princeton-CDH/django-pucas/requirements/?branch=master
-     :alt: Requirements Status
 
 .. image:: https://img.shields.io/pypi/pyversions/viapy
    :alt: PyPI - Python Version
@@ -35,8 +31,8 @@ support for prepopulating user account data based on an LDAP search.
 
 **django-pucas** is tested against:
 
-* Django ``1.11-3.1``
-* Python ``3.5-3.8``
+* Django ``3.2-4.0``
+* Python ``3.9-3.11``
 
 **django-pucas** requires **django-cas-ng** 3.6 or greater.
 

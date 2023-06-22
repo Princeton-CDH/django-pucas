@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+0.8
+---
+* Now tested against Django 3.2-4.2
+* Add testing for Python 3.9-3.11
+* Using GitHub Actions for continuous integration
+
 0.7
 ----
 * Drop support for Python 2.7

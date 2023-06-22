@@ -1,8 +1,8 @@
-from django.conf.urls import url
+from django.urls import path
 from django_cas_ng.views import LoginView, LogoutView, CallbackView
 
 urlpatterns = [
-    url(r'^login/$', LoginView.as_view(), name='cas_ng_login'),
-    url(r'^logout/$', LogoutView.as_view(), name='cas_ng_logout'),
-    url(r'^callback/$', CallbackView.as_view(), name='cas_ng_proxy_callback'),
+    path("login/", LoginView.as_view(), name="cas_ng_login"),
+    path("logout/", LogoutView.as_view(), name="cas_ng_logout"),
+    path("callback/", CallbackView.as_view(), name="cas_ng_proxy_callback"),
 ]
