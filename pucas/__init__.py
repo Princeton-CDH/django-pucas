@@ -1,5 +1,3 @@
-default_app_config = "pucas.apps.PucasConfig"
-
 __version_info__ = (0, 8, 0, "dev")
 
 # Dot-connect all but the last. Last is dash-connected if not None.
