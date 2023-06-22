@@ -46,7 +46,7 @@ jobs:
           python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> testsettings.py
 
       - name: Run pytest
-        run: py.test --cov=pucas --cov-report=xml
+        run: pytest --cov=pucas --cov-report=xml
 
       - name: Upload test coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v3
