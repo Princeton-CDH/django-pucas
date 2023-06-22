@@ -1,8 +1,8 @@
 django-pucas
 ============
 
-.. image:: https://travis-ci.org/Princeton-CDH/django-pucas.svg?branch=master
-   :target: https://travis-ci.org/Princeton-CDH/django-pucas
+.. image:: https://github.com/Princeton-CDH/django-pucas/actions/workflows/unit_tests.yml/badge.svg
+   :target: https://github.com/Princeton-CDH/django-pucas/actions/workflows/unit_tests.yml
    :alt: Build status
 
 .. image:: https://codecov.io/gh/Princeton-CDH/django-pucas/branch/main/graph/badge.svg
