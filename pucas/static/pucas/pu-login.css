@@ -9,6 +9,7 @@ mezzanine / grappelli */
     margin-top: 0 !important;
 }
 
+
  /* match mezzanine/grappelli main content size,
     use Princeton colors and image,
     make CAS link look like a button and align it with
@@ -16,34 +17,61 @@ mezzanine / grappelli */
     alternatives.
   */
 .cas-login {
-    margin: 50px auto 5px;
-    width: 450px;
-    text-align: left;
+    margin: 50px auto 50px;
+    width: 300px;
+    text-align: center;
+    background-color: white;  /* so PU logo doesn't look so tight on dark bg */
+    border-radius: 5px;
 }
 
-/* match default grappelli login window size */
-.grp-container .cas-login {
-    width: 380px;
-}
+
+/* for non-grappelli, display vertically stacked */
 .cas-login a {
+/*    background-image: linear-gradient(rgba(0,0,0,0) 50%, white 51%),*/
     background-image: url('https://fed.princeton.edu/cas/images/pu_signature_web.jpg');
     background-repeat: no-repeat;
-    background-position: right;
-    padding-right: 175px;
-    height: 55px;
+    background-position: bottom;
+    padding-bottom: 8em;
+    height: 4em;
     margin-bottom: 25px;
     display: inline-block;
     font-size: 15px;
 }
+
+/* for grappelli, display login button and PU icon side by side */
+.grp-login .cas-login a {
+    background-position: right;
+    padding-right: 175px;
+    padding-bottom: 0;
+    margin-bottom: 25px;
+}
+
 .cas-login .button {
     /* princeton orange */
     background-color: #ee7f2d;
+    border: none;
+    padding: 10px;
     display: inline-block;
     /* override Chrome/webkit gradient background */
     background: -webkit-gradient(linear, left top, left bottom, from(#ee7f2d), to(#ee7f2d));
     margin-top: 15px;
+    line-height: 1.5em;
     color: white;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
     border-radius: 5px;
+
 }
+
+/* when grappelli is used, match default grappelli login window size */
+.grp-login .grp-container .cas-login, .grp-login .cas-alt {
+    width: 380px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* adjust for grappelli button styles */
+.grp-login .cas-login .button {
+    box-sizing: inherit;
+    font-size: 14px;
+    margin-top: 12px;
+}
+

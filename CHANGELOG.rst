@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+0.9
+---
+
+* Update installation instructions to use current django url syntax
+* Update sample login template to use correct django admin `extrastyle` block
+* Update styles and wording for PU CAS login include template
+
 0.8
 ---
 * Now tested against Django 3.2-4.2
