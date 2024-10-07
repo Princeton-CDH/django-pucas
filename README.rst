@@ -80,7 +80,7 @@ or configure them as needed based on the documentation::
 
     urlpatterns = [
         ...
-        url(r'^accounts/', include('pucas.cas_urls')),
+        path('accounts/', include('pucas.cas_urls')),
         ...
     ]
 
