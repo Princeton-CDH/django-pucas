@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+0.9.1
+-----
+
+* Update GitHub Actions for publishing releases to PyPI
+
 0.9
 ---
 
