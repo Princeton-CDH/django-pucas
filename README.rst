@@ -156,14 +156,22 @@ This git repository uses git flow branching conventions, with **main** as the cu
 
 Initial setup and installation:
 
-- recommended: create and activate a python 3.5 virtualenv::
+- Recommended: install `uv <https://docs.astral.sh/uv/>`_ for Python package management::
 
-    virtualenv pucas -p python3.5
-    source pucas/bin/activate
+    curl -LsSf https://astral.sh/uv/install.sh | sh
 
-- pip install the package with its python dependencies::
+- Create and activate a virtual environment::
 
-    pip install -e .
+    uv venv
+    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+- Install the package with its dependencies::
+
+    uv pip install -e .
+
+- Install development dependencies::
+
+    uv pip install -e '.[test]'
 
 
 Unit Testing
@@ -177,14 +185,9 @@ the tests requires a minimal settings file for Django required configurations.
 
     cp ci/testsettings.py testsettings.py
 
-- To run the tests, either use the configured setup.py test command::
+- Run the tests with pytest::
 
-    python setup.py test
-
-- Or install test requirements and use py.test directly::
-
-    pip install -e '.[test]'
-    py.test
+    pytest
 
 
 License
