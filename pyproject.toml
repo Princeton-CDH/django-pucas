@@ -61,7 +61,7 @@ dev = ["pucas[test]"]
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "testsettings"
 python_files = "**/tests.py"
-pythonpath = ["."]
+pythonpath = [".", "src"]
 
 [tool.coverage.run]
 source = ["src"]
