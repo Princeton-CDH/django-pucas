@@ -24,21 +24,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install uv
+      - name: Install uv and Python version
         uses: astral-sh/setup-uv@v4
         with:
           enable-cache: true
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
           python-version: ${{ matrix.python }}
 
-      - name: Install package with dependencies
+      - name: Install package dependencies
         run: |
-          uv pip install --system -e .
-          uv pip install --system -e '.[test]'
-          uv pip install --system "django~=${{ matrix.django }}"
+          uv sync --extra test
+          uv pip install "django~=${{ matrix.django }}"
 
       - name: Setup test settings
         run: |
@@ -46,7 +41,7 @@ jobs:
           python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> testsettings.py
 
       - name: Run pytest
-        run: pytest --cov=pucas --cov-report=xml --cov-report=term
+        run: uv run pytest --cov=pucas --cov-report=xml --cov-report=term
 
       - name: Upload test coverage to Codecov
         uses: codecov/codecov-action@v5

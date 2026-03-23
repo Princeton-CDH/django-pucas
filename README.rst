@@ -154,24 +154,26 @@ Development instructions
 
 This git repository uses git flow branching conventions, with **main** as the current production release branch.
 
+For development, we assume the usage of `uv <https://docs.astral.sh/uv/>`_.
+``uv`` is compatible with the use of ``pip`` for python package management
+and a tool of your choice for creating python virtual environments
+(e.g., ``mamba``, ``venv``).
+
 Initial setup and installation:
 
-- Recommended: install `uv <https://docs.astral.sh/uv/>`_ for Python package management::
+- Install ``uv`` if it's not installed.
+  It can be installed via PyPI, Homebrew, or a standalone installer.
+  See uv's `installation documentation <https://docs.astral.sh/uv/getting-started/installation>`_
+  for more details.
 
-    curl -LsSf https://astral.sh/uv/install.sh | sh
+- To explicitly sync the project's dependencies, including optional dependencies
+  for development and testing, to your local environment run::
 
-- Create and activate a virtual environment::
+    uv sync
 
-    uv venv
-    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-- Install the package with its dependencies::
-
-    uv pip install -e .
-
-- Install development dependencies::
-
-    uv pip install -e '.[test]'
+- Note that ``uv`` performs syncing and locking automatically (e.g., any time
+  ``uv run`` is invoked). By default, syncing will remove any packages not
+  specifically specified in the ``pyproject.toml``.
 
 
 Unit Testing
@@ -187,7 +189,7 @@ the tests requires a minimal settings file for Django required configurations.
 
 - Run the tests with pytest::
 
-    pytest
+    uv run pytest
 
 
 License
