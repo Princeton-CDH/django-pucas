@@ -1,4 +1,4 @@
 include LICENSE
 include README.rst
-recursive-include pucas/static *
-recursive-include pucas/templates *
+recursive-include src/pucas/static *
+recursive-include src/pucas/templates *
