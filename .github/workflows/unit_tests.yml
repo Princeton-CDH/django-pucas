@@ -1,8 +1,14 @@
 name: unit tests
 
 on:
-  push: # run on every push or PR to any branch
+  push:
+    branches:
+      - main
+      - develop
   pull_request:
+    branches:
+      - main
+      - develop
   schedule: # run automatically on main branch each Tuesday at 11am
     - cron: "0 16 * * 2"
 
@@ -16,29 +22,18 @@ jobs:
         django: ["3.2", "4.0", "4.1", "4.2"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Install uv and Python version
+        uses: astral-sh/setup-uv@v4
         with:
+          enable-cache: true
           python-version: ${{ matrix.python }}
 
-      # We base the python cache on the hash of all requirements files, so that
-      # if any change, the cache is invalidated.
-      - name: Cache pip
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: pip-${{ hashFiles('setup.py') }}
-          restore-keys: |
-            pip-${{ hashFiles('setup.py') }}
-            pip-
-
-      - name: Install package with dependencies
+      - name: Install package dependencies
         run: |
-          pip install -e .
-          pip install -e '.[test]'
-          pip install codecov
+          uv sync --extra test
+          uv pip install "django~=${{ matrix.django }}"
 
       - name: Setup test settings
         run: |
@@ -46,7 +41,11 @@ jobs:
           python -c "import uuid; print('SECRET_KEY = \'%s\'' % uuid.uuid4())" >> testsettings.py
 
       - name: Run pytest
-        run: python -m pytest --cov=pucas --cov-report=xml
+        run: uv run pytest --cov=pucas --cov-report=xml --cov-report=term
 
       - name: Upload test coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          fail_ci_if_error: false

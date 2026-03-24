@@ -154,16 +154,26 @@ Development instructions
 
 This git repository uses git flow branching conventions, with **main** as the current production release branch.
 
+For development, we assume the usage of `uv <https://docs.astral.sh/uv/>`_.
+``uv`` is compatible with the use of ``pip`` for python package management
+and a tool of your choice for creating python virtual environments
+(e.g., ``mamba``, ``venv``).
+
 Initial setup and installation:
 
-- recommended: create and activate a python 3.5 virtualenv::
+- Install ``uv`` if it's not installed.
+  It can be installed via PyPI, Homebrew, or a standalone installer.
+  See uv's `installation documentation <https://docs.astral.sh/uv/getting-started/installation>`_
+  for more details.
 
-    virtualenv pucas -p python3.5
-    source pucas/bin/activate
+- To explicitly sync the project's dependencies, including optional dependencies
+  for development and testing, to your local environment run::
 
-- pip install the package with its python dependencies::
+    uv sync
 
-    pip install -e .
+- Note that ``uv`` performs syncing and locking automatically (e.g., any time
+  ``uv run`` is invoked). By default, syncing will remove any packages not
+  specifically specified in the ``pyproject.toml``.
 
 
 Unit Testing
@@ -177,14 +187,9 @@ the tests requires a minimal settings file for Django required configurations.
 
     cp ci/testsettings.py testsettings.py
 
-- To run the tests, either use the configured setup.py test command::
+- Run the tests with pytest::
 
-    python setup.py test
-
-- Or install test requirements and use py.test directly::
-
-    pip install -e '.[test]'
-    py.test
+    uv run pytest
 
 
 License
