@@ -32,7 +32,7 @@ support for prepopulating user account data based on an LDAP search.
 **django-pucas** is tested against:
 
 * Django ``3.2-4.0``
-* Python ``3.9-3.11``
+* Python ``3.10-3.14``
 
 **django-pucas** requires **django-cas-ng** 3.6 or greater.
 
