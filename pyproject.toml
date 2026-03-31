@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "pucas"
 version = "0.10.0-dev0"
 description = "Django app to login with CAS and populate user accounts with LDAP."
-readme = "README.rst"
+readme = "README.md"
 license = { text = "Apache License, Version 2.0" }
 authors = [
     { name = "CDH @ Princeton", email = "digitalhumanities@princeton.edu" }
