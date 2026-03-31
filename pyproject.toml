@@ -7,7 +7,7 @@ name = "pucas"
 version = "0.10.0-dev0"
 description = "Django app to login with CAS and populate user accounts with LDAP."
 readme = "README.md"
-license = { text = "Apache License, Version 2.0" }
+license = "Apache-2.0"
 authors = [
     { name = "CDH @ Princeton", email = "digitalhumanities@princeton.edu" }
 ]
@@ -25,7 +25,6 @@ classifiers = [
     "Framework :: Django :: 4.1",
     "Framework :: Django :: 4.2",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
@@ -64,6 +63,10 @@ dev = ["pucas[test]"]
 DJANGO_SETTINGS_MODULE = "testsettings"
 python_files = "**/tests.py"
 pythonpath = [".", "src"]
+filterwarnings = [
+    # upstream bug in ldap3 2.9.1 importing deprecated pyasn1 names
+    "ignore::DeprecationWarning:ldap3",
+]
 
 [tool.coverage.run]
 source = ["src"]
