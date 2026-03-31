@@ -64,7 +64,9 @@ DJANGO_SETTINGS_MODULE = "testsettings"
 python_files = "**/tests.py"
 pythonpath = [".", "src"]
 filterwarnings = [
-    # upstream bug in ldap3 2.9.1 importing deprecated pyasn1 names
+    # ldap3 2.9.1 imports deprecated pyasn1 names (tagMap/typeMap);
+    # upstream bug with no fix released as of 2026-03, expected in ldap3 2.10.
+    # revisit when ldap3 2.10 is available: https://github.com/cannatag/ldap3/issues/1159
     "ignore::DeprecationWarning:ldap3",
 ]
 
