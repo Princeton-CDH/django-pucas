@@ -1,0 +1,86 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pucas"
+version = "0.10.0-dev0"
+description = "Django app to login with CAS and populate user accounts with LDAP."
+readme = "README.md"
+license = "Apache-2.0"
+authors = [
+    { name = "CDH @ Princeton", email = "digitalhumanities@princeton.edu" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "django>=1.8",
+    "django-cas-ng>=3.6",
+    "ldap3",
+]
+classifiers = [
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 3.2",
+    "Framework :: Django :: 4.0",
+    "Framework :: Django :: 4.1",
+    "Framework :: Django :: 4.2",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: System :: Systems Administration :: Authentication/Directory",
+    "Topic :: System :: Systems Administration :: Authentication/Directory :: LDAP",
+]
+
+[project.urls]
+Homepage = "https://github.com/Princeton-CDH/django-pucas"
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-django",
+    "pytest-cov",
+    "coverage[toml]",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pucas = ["static/**/*", "templates/**/*"]
+
+[dependency-groups]
+dev = ["pucas[test]"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "testsettings"
+python_files = "**/tests.py"
+pythonpath = [".", "src"]
+filterwarnings = [
+    # ldap3 2.9.1 imports deprecated pyasn1 names (tagMap/typeMap);
+    # upstream bug with no fix released as of 2026-03, expected in ldap3 2.10.
+    # revisit when ldap3 2.10 is available: https://github.com/cannatag/ldap3/issues/1159
+    "ignore::DeprecationWarning:ldap3",
+]
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+omit = ["*/tests.py", "*/test_*.py"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "# pragma: no cover",
+    "if __name__ == .__main__.:",
+]
+
+[tool.coverage.html]
+directory = "coverage_html_report"
