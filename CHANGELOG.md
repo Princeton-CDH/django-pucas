@@ -1,12 +1,9 @@
 # Changelog
 
-## 0.10.2
-
-* Convert CHANGELOG from `.rst` to `.md`
-
 ## 0.10.1
 
 * Correct version number
+* Convert CHANGELOG from `.rst` to `.md`
 
 ## 0.10
 
