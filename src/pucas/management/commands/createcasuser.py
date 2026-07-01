@@ -1,8 +1,6 @@
-from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
-from pucas.ldap import LDAPSearch, LDAPSearchException, \
-    user_info_from_ldap
+from pucas.ldap import LDAPSearchException, init_cas_user
 
 
 class Command(BaseCommand):
@@ -24,20 +22,12 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        User = get_user_model()
-
-        ldap_search = LDAPSearch()
         netids = options['netids']
         admin = options['admin']
         staff = options['staff']
         for netid in netids:
             try:
-                # make sure we can find the netid in LDAP first
-                ldap_search.find_user(netid)
-                user, created = User.objects.get_or_create(username=netid)
-                # NOTE: should we re-init data from ldap even if user
-                # already exists, or error?
-                user_info_from_ldap(user)
+                user, created = init_cas_user(netid)
 
                 # If admin flag is set, make the user an admin
                 if admin or staff:

@@ -8,7 +8,7 @@ from ldap3.core.exceptions import LDAPCursorError, LDAPException
 import pytest
 
 from pucas.ldap import LDAPSearch, LDAPSearchException, \
-    user_info_from_ldap
+    init_cas_user, user_info_from_ldap
 from pucas.management.commands import createcasuser, ldapsearch
 from pucas.signals import cas_login
 
@@ -292,9 +292,7 @@ class TestLDAPSearchCommand(TestCase):
             all_attributes=False)
 
 
-@mock.patch('pucas.management.commands.createcasuser.get_user_model')
-@mock.patch('pucas.management.commands.createcasuser.LDAPSearch')
-@mock.patch('pucas.management.commands.createcasuser.user_info_from_ldap')
+@mock.patch('pucas.management.commands.createcasuser.init_cas_user')
 class TestCreateCasUserCommand(TestCase):
 
     def setUp(self):
@@ -302,15 +300,11 @@ class TestCreateCasUserCommand(TestCase):
         self.cmd.stdout = StringIO()
         self.cmd.stderr = StringIO()
 
-    def test_handle(self, mock_userinfo, mock_ldapsearch, mock_getuser):
+    def test_handle(self, mock_init_cas_user):
         mockuser = mock.Mock(is_staff=False, is_superuser=False)
-        mock_getuser.return_value.objects.get_or_create.return_value = \
-            (mockuser, False)
+        mock_init_cas_user.return_value = (mockuser, False)
         self.cmd.handle(netids=['jdoe'], admin=False, staff=False)
-        # search should be called
-        mock_ldapsearch.return_value.find_user.assert_called_with('jdoe')
-        # user info method should be called
-        mock_userinfo.assert_called_with(mockuser)
+        mock_init_cas_user.assert_called_with('jdoe')
         # not given staff or superuser permissions
         assert not mockuser.is_staff
         assert not mockuser.is_superuser
@@ -326,19 +320,57 @@ class TestCreateCasUserCommand(TestCase):
         assert mockuser.is_admin
 
         # created vs updated
-        mock_getuser.return_value.objects.get_or_create.return_value = \
-            (mockuser, True)
+        mock_init_cas_user.return_value = (mockuser, True)
         self.cmd.handle(netids=['jschmoe'], admin=True, staff=True)
         output = self.cmd.stdout.getvalue()
         assert "Created user 'jschmoe'" in output
 
-    def test_err(self, mock_userinfo, mock_ldapsearch, mock_getuser):
-        mock_ldapsearch.return_value.find_user.side_effect = LDAPSearchException
+    def test_err(self, mock_init_cas_user):
+        mock_init_cas_user.side_effect = LDAPSearchException
         self.cmd.handle(netids=['jdoe'], admin=False, staff=False)
         output = self.cmd.stderr.getvalue()
         assert "LDAP information for 'jdoe' not found" in output
 
-    def test_call_command(self, mock_userinfo, mock_ldapsearch, mock_getuser):
-        mock_ldapsearch.return_value.find_user.side_effect = LDAPSearchException
+    def test_call_command(self, mock_init_cas_user):
+        mock_init_cas_user.side_effect = LDAPSearchException
         call_command('createcasuser', 'jdoe', '--staff')
+        mock_init_cas_user.assert_called_with('jdoe')
+
+
+@mock.patch('pucas.ldap.LDAPSearch')
+@mock.patch('pucas.ldap.user_info_from_ldap')
+@mock.patch('pucas.ldap.get_user_model')
+class TestInitCasUser(TestCase):
+
+    def test_creates_new_user(self, mock_getuser, mock_userinfo, mock_ldapsearch):
+        mockuser = mock.Mock()
+        mock_getuser.return_value.objects.get_or_create.return_value = (mockuser, True)
+
+        user, created = init_cas_user('jdoe')
+
         mock_ldapsearch.return_value.find_user.assert_called_with('jdoe')
+        mock_getuser.return_value.objects.get_or_create.assert_called_with(username='jdoe')
+        # user info should be populated for new users
+        mock_userinfo.assert_called_with(mockuser)
+        assert user == mockuser
+        assert created is True
+
+    def test_existing_user_not_reinitialised(self, mock_getuser, mock_userinfo, mock_ldapsearch):
+        mockuser = mock.Mock()
+        mock_getuser.return_value.objects.get_or_create.return_value = (mockuser, False)
+
+        user, created = init_cas_user('jdoe')
+
+        # user info should NOT be repopulated for existing users
+        mock_userinfo.assert_not_called()
+        assert user == mockuser
+        assert created is False
+
+    def test_ldap_not_found(self, mock_getuser, mock_userinfo, mock_ldapsearch):
+        mock_ldapsearch.return_value.find_user.side_effect = LDAPSearchException
+
+        with pytest.raises(LDAPSearchException):
+            init_cas_user('unknown')
+
+        # user record should not be created if LDAP lookup fails
+        mock_getuser.return_value.objects.get_or_create.assert_not_called()

@@ -4,6 +4,7 @@ import importlib
 
 from ldap3.core.exceptions import LDAPException, LDAPCursorError
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 
 logger = logging.getLogger(__name__)
@@ -68,6 +69,28 @@ class LDAPSearch(object):
 
         else:
             raise LDAPSearchException('Error: requested LDAP lookup on empty netid')
+
+
+def init_cas_user(netid):
+    """Initialize a CAS user account from LDAP by netid.
+
+    Looks up the netid in LDAP, creates the user account if it does not exist,
+    and populates user info from LDAP for newly created accounts.
+
+    Returns a tuple of ``(user, created)`` where ``created`` is a boolean
+    indicating whether the account was created (True) or already existed (False).
+
+    Raises :exc:`LDAPSearchException` if the netid is not found in LDAP.
+    """
+    User = get_user_model()
+    # verify netid exists in LDAP before creating a DB record
+    LDAPSearch().find_user(netid)
+    user, created = User.objects.get_or_create(username=netid)
+    # only populate info for new users; skip existing to avoid overwriting
+    # intentional changes (e.g. is_active set by an admin)
+    if created:
+        user_info_from_ldap(user)
+    return user, created
 
 
 def user_info_from_ldap(user):
