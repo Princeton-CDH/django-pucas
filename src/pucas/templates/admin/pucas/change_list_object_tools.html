@@ -1,0 +1,12 @@
+{% load i18n %}
+
+{% block object-tools-items %}
+  {{ block.super }}
+  {% if has_add_permission %}
+  <li>
+    <a href="{{ cas_init_url }}" class="addlink">
+      {% trans 'Add CAS Users' %}
+    </a>
+  </li>
+  {% endif %}
+{% endblock %}

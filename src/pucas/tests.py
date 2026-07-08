@@ -2,11 +2,16 @@ from io import StringIO
 from unittest import mock
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.admin.sites import AdminSite
 from django.core.management import call_command
-from django.test import TestCase, override_settings
+from django.test import TestCase, RequestFactory, override_settings
 from ldap3.core.exceptions import LDAPCursorError, LDAPException
 import pytest
 
+from pucas.admin import CasUserAdmin
+from pucas.forms import CasUserInitForm
 from pucas.ldap import LDAPSearch, LDAPSearchException, \
     init_cas_user, user_info_from_ldap
 from pucas.management.commands import createcasuser, ldapsearch
@@ -355,14 +360,14 @@ class TestInitCasUser(TestCase):
         assert user == mockuser
         assert created is True
 
-    def test_existing_user_not_reinitialised(self, mock_getuser, mock_userinfo, mock_ldapsearch):
+    def test_existing_user_is_reinitialised(self, mock_getuser, mock_userinfo, mock_ldapsearch):
         mockuser = mock.Mock()
         mock_getuser.return_value.objects.get_or_create.return_value = (mockuser, False)
 
         user, created = init_cas_user('jdoe')
 
-        # user info should NOT be repopulated for existing users
-        mock_userinfo.assert_not_called()
+        # user info should be repopulated for existing users too
+        mock_userinfo.assert_called_with(mockuser)
         assert user == mockuser
         assert created is False
 
@@ -374,3 +379,131 @@ class TestInitCasUser(TestCase):
 
         # user record should not be created if LDAP lookup fails
         mock_getuser.return_value.objects.get_or_create.assert_not_called()
+
+
+class TestCasUserInitForm(TestCase):
+
+    def test_valid_single_netid(self):
+        form = CasUserInitForm(data={"netids": "jdoe"})
+        assert form.is_valid()
+        assert form.cleaned_data["netids"] == ["jdoe"]
+
+    def test_valid_multiple_netids_spaces(self):
+        form = CasUserInitForm(data={"netids": "jdoe jschmoe abc123"})
+        assert form.is_valid()
+        assert form.cleaned_data["netids"] == ["jdoe", "jschmoe", "abc123"]
+
+    def test_valid_multiple_netids_newlines(self):
+        form = CasUserInitForm(data={"netids": "jdoe\njschmoe\nabc123"})
+        assert form.is_valid()
+        assert form.cleaned_data["netids"] == ["jdoe", "jschmoe", "abc123"]
+
+    def test_invalid_netid_special_chars(self):
+        form = CasUserInitForm(data={"netids": "jdoe; rm -rf /"})
+        assert not form.is_valid()
+        assert "netids" in form.errors
+
+    def test_invalid_netid_hyphen(self):
+        form = CasUserInitForm(data={"netids": "j-doe"})
+        assert not form.is_valid()
+
+    def test_empty_input(self):
+        form = CasUserInitForm(data={"netids": ""})
+        assert not form.is_valid()
+
+
+class TestCasUserAdmin(TestCase):
+
+    def setUp(self):
+        self.site = AdminSite()
+        self.admin = CasUserAdmin(get_user_model(), self.site)
+        self.factory = RequestFactory()
+
+    @mock.patch("pucas.admin.init_cas_user")
+    def test_get_renders_form(self, mock_init):
+        request = self.factory.get("/admin/users/user/cas-init/")
+        request.user = mock.Mock(is_active=True, is_staff=True)
+        # provide session and _messages for admin context
+        request.session = {}
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        request._messages = FallbackStorage(request)
+
+        response = self.admin.cas_user_init(request)
+        assert response.status_code == 200
+        assert isinstance(response.context_data["form"], CasUserInitForm)
+
+    @mock.patch("pucas.admin.init_cas_user")
+    def test_post_creates_new_user(self, mock_init):
+        mock_init.return_value = (mock.Mock(), True)
+        request = self.factory.post(
+            "/admin/users/user/cas-init/", data={"netids": "jdoe"}
+        )
+        request.user = mock.Mock(is_active=True, is_staff=True)
+        request.session = {}
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        request._messages = FallbackStorage(request)
+
+        response = self.admin.cas_user_init(request)
+        mock_init.assert_called_once_with("jdoe")
+        # should redirect back to changelist
+        assert response.status_code == 302
+
+    @mock.patch("pucas.admin.init_cas_user")
+    def test_post_existing_user(self, mock_init):
+        mock_init.return_value = (mock.Mock(), False)
+        request = self.factory.post(
+            "/admin/users/user/cas-init/", data={"netids": "jdoe"}
+        )
+        request.user = mock.Mock(is_active=True, is_staff=True)
+        request.session = {}
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        request._messages = FallbackStorage(request)
+
+        response = self.admin.cas_user_init(request)
+        mock_init.assert_called_once_with("jdoe")
+        assert response.status_code == 302
+
+    @mock.patch("pucas.admin.init_cas_user")
+    def test_post_ldap_not_found(self, mock_init):
+        mock_init.side_effect = LDAPSearchException("not found")
+        request = self.factory.post(
+            "/admin/users/user/cas-init/", data={"netids": "unknown"}
+        )
+        request.user = mock.Mock(is_active=True, is_staff=True)
+        request.session = {}
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        request._messages = FallbackStorage(request)
+
+        response = self.admin.cas_user_init(request)
+        # still redirects; error shown via message_user
+        assert response.status_code == 302
+
+    @mock.patch("pucas.admin.init_cas_user")
+    def test_post_invalid_netid_does_not_call_init(self, mock_init):
+        request = self.factory.post(
+            "/admin/users/user/cas-init/", data={"netids": "j doe!"}
+        )
+        request.user = mock.Mock(is_active=True, is_staff=True)
+        request.session = {}
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        request._messages = FallbackStorage(request)
+
+        response = self.admin.cas_user_init(request)
+        mock_init.assert_not_called()
+        # invalid form re-renders, no redirect
+        assert response.status_code == 200
+
+    def test_changelist_view_adds_cas_init_url(self):
+        request = self.factory.get("/admin/users/user/")
+        request.user = mock.Mock(is_active=True, is_staff=True)
+        request.session = {}
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        request._messages = FallbackStorage(request)
+
+        # patch changelist_view to avoid full DB setup
+        with mock.patch.object(UserAdmin, "changelist_view") as mock_cl:
+            mock_cl.return_value = mock.Mock()
+            self.admin.changelist_view(request)
+            _, kwargs = mock_cl.call_args
+            extra = kwargs.get("extra_context") or mock_cl.call_args[0][1]
+            assert extra["cas_init_url"] == "cas-init/"
