@@ -1,10 +1,11 @@
+{% extends "admin/change_list.html" %}
 {% load i18n %}
 
 {% block object-tools-items %}
   {{ block.super }}
   {% if has_add_permission %}
   <li>
-    <a href="{{ cas_init_url }}" class="addlink">
+    <a href="cas-init/" class="addlink">
       {% trans 'Add CAS Users' %}
     </a>
   </li>
