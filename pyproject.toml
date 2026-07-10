@@ -7,7 +7,7 @@ name = "pucas"
 version = "0.11.0-dev0"
 description = "Django app to login with CAS and populate user accounts with LDAP."
 readme = "README.md"
-license = "Apache-2.0"
+license = {text = "Apache-2.0"}
 authors = [
     { name = "CDH @ Princeton", email = "digitalhumanities@princeton.edu" }
 ]
@@ -62,7 +62,7 @@ dev = ["pucas[test]"]
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "testsettings"
 python_files = "**/tests.py"
-pythonpath = [".", "src"]
+pythonpath = [".", "src", "ci"]
 filterwarnings = [
     # ldap3 2.9.1 imports deprecated pyasn1 names (tagMap/typeMap);
     # upstream bug with no fix released as of 2026-03, expected in ldap3 2.10.

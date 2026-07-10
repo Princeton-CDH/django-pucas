@@ -432,8 +432,9 @@ class TestCasUserAdmin(TestCase):
         assert response.status_code == 200
         assert isinstance(response.context_data["form"], CasUserInitForm)
 
+    @mock.patch("pucas.admin.LDAPSearch")
     @mock.patch("pucas.admin.init_cas_user")
-    def test_post_creates_new_user(self, mock_init):
+    def test_post_creates_new_user(self, mock_init, mock_ldapsearch):
         mock_init.return_value = (mock.Mock(), True)
         request = self.factory.post(
             "/admin/users/user/cas-init/", data={"netids": "jdoe"}
@@ -444,12 +445,13 @@ class TestCasUserAdmin(TestCase):
         request._messages = FallbackStorage(request)
 
         response = self.admin.cas_user_init(request)
-        mock_init.assert_called_once_with("jdoe")
+        mock_init.assert_called_once_with("jdoe", ldap=mock_ldapsearch.return_value)
         # should redirect back to changelist
         assert response.status_code == 302
 
+    @mock.patch("pucas.admin.LDAPSearch")
     @mock.patch("pucas.admin.init_cas_user")
-    def test_post_existing_user(self, mock_init):
+    def test_post_existing_user(self, mock_init, mock_ldapsearch):
         mock_init.return_value = (mock.Mock(), False)
         request = self.factory.post(
             "/admin/users/user/cas-init/", data={"netids": "jdoe"}
@@ -460,11 +462,12 @@ class TestCasUserAdmin(TestCase):
         request._messages = FallbackStorage(request)
 
         response = self.admin.cas_user_init(request)
-        mock_init.assert_called_once_with("jdoe")
+        mock_init.assert_called_once_with("jdoe", ldap=mock_ldapsearch.return_value)
         assert response.status_code == 302
 
+    @mock.patch("pucas.admin.LDAPSearch")
     @mock.patch("pucas.admin.init_cas_user")
-    def test_post_ldap_not_found(self, mock_init):
+    def test_post_ldap_not_found(self, mock_init, mock_ldapsearch):
         mock_init.side_effect = LDAPSearchException("not found")
         request = self.factory.post(
             "/admin/users/user/cas-init/", data={"netids": "unknown"}
@@ -493,17 +496,5 @@ class TestCasUserAdmin(TestCase):
         # invalid form re-renders, no redirect
         assert response.status_code == 200
 
-    def test_changelist_view_adds_cas_init_url(self):
-        request = self.factory.get("/admin/users/user/")
-        request.user = mock.Mock(is_active=True, is_staff=True)
-        request.session = {}
-        from django.contrib.messages.storage.fallback import FallbackStorage
-        request._messages = FallbackStorage(request)
-
-        # patch changelist_view to avoid full DB setup
-        with mock.patch.object(UserAdmin, "changelist_view") as mock_cl:
-            mock_cl.return_value = mock.Mock()
-            self.admin.changelist_view(request)
-            _, kwargs = mock_cl.call_args
-            extra = kwargs.get("extra_context") or mock_cl.call_args[0][1]
-            assert extra["cas_init_url"] == "cas-init/"
+    def test_change_list_template(self):
+        assert self.admin.change_list_template == "admin/pucas/change_list.html"
