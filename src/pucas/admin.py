@@ -5,31 +5,18 @@ from django.template.response import TemplateResponse
 from django.urls import path
 
 from pucas.forms import CasUserInitForm
-from pucas.ldap import LDAPSearchException, init_cas_user
+from pucas.ldap import LDAPSearchException, LDAPSearch, init_cas_user
 
 
 class CasUserAdmin(UserAdmin):
     """UserAdmin subclass with a CAS user initialization view.
 
     Provides a form-based interface for creating CAS user accounts by netid
-    directly from the Django admin. Can be used directly or subclassed if
-    further customization is needed.
-
-    Example usage::
-
-        from django.contrib import admin
-        from django.contrib.auth import get_user_model
-        from pucas.admin import CasUserAdmin
-
-        admin.site.register(get_user_model(), CasUserAdmin)
-
-    To extend with additional customization::
-
-        from pucas.admin import CasUserAdmin
-
-        class MyUserAdmin(CasUserAdmin):
-            ...
+    directly from the Django admin. Can be used directly or subclassed for
+    further customization. See the pucas README for usage instructions.
     """
+
+    change_list_template = "admin/pucas/change_list.html"
 
     def get_urls(self):
         urls = super().get_urls()
@@ -52,9 +39,10 @@ class CasUserAdmin(UserAdmin):
                 existing_list = []
                 errors = []
 
+                ldap = LDAPSearch()
                 for netid in netids:
                     try:
-                        _, created = init_cas_user(netid)
+                        _, created = init_cas_user(netid, ldap=ldap)
                         if created:
                             created_list.append(netid)
                         else:
@@ -96,8 +84,3 @@ class CasUserAdmin(UserAdmin):
             "admin/pucas/cas_user_init.html",
             context,
         )
-
-    def changelist_view(self, request, extra_context=None):
-        extra_context = extra_context or {}
-        extra_context["cas_init_url"] = "cas-init/"
-        return super().changelist_view(request, extra_context=extra_context)

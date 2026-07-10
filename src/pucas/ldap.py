@@ -71,7 +71,7 @@ class LDAPSearch(object):
             raise LDAPSearchException('Error: requested LDAP lookup on empty netid')
 
 
-def init_cas_user(netid):
+def init_cas_user(netid, ldap=None):
     """Initialize a CAS user account from LDAP by netid.
 
     Looks up the netid in LDAP, creates the user account if it does not exist,
@@ -81,10 +81,15 @@ def init_cas_user(netid):
     indicating whether the account was created (True) or already existed (False).
 
     Raises :exc:`LDAPSearchException` if the netid is not found in LDAP.
+
+    An existing :class:`LDAPSearch` instance can be passed as ``ldap`` to
+    reuse an existing connection when initializing multiple users.
     """
+    if ldap is None:
+        ldap = LDAPSearch()
     User = get_user_model()
     # verify netid exists in LDAP before creating a DB record
-    LDAPSearch().find_user(netid)
+    ldap.find_user(netid)
     user, created = User.objects.get_or_create(username=netid)
     user_info_from_ldap(user)
     return user, created
