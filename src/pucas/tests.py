@@ -498,3 +498,8 @@ class TestCasUserAdmin(TestCase):
 
     def test_change_list_template(self):
         assert self.admin.change_list_template == "admin/pucas/change_list.html"
+
+    def test_get_urls_includes_cas_init(self):
+        urls = self.admin.get_urls()
+        url_names = [u.name for u in urls if hasattr(u, 'name')]
+        assert "users_user_cas_init" in url_names
