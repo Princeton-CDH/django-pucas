@@ -16,7 +16,7 @@ class CasUserAdmin(UserAdmin):
     further customization. See the pucas README for usage instructions.
     """
 
-    change_list_template = "admin/pucas/change_list.html"
+    change_list_template = "admin/pucas/user_change_list.html"
 
     def get_urls(self):
         urls = super().get_urls()

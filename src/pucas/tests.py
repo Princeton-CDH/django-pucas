@@ -497,7 +497,7 @@ class TestCasUserAdmin(TestCase):
         assert response.status_code == 200
 
     def test_change_list_template(self):
-        assert self.admin.change_list_template == "admin/pucas/change_list.html"
+        assert self.admin.change_list_template == "admin/pucas/user_change_list.html"
 
     def test_get_urls_includes_cas_init(self):
         urls = self.admin.get_urls()
