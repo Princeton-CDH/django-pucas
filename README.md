@@ -134,11 +134,49 @@ Two manage commands are provided, for convenience.
 
 * Use `python manage.py ldapsearch netid1 netid2 netid3` for testing
   your LDAP configuration and attributes.
-* Use `python manage.py createcasuser netid` to initialize a new
-  CAS account and populate data from LDAP without requiring the user
-  to login first, as an aid to managing accounts and permissions.
+* Use `python manage.py createcasuser netid1 netid2 netid3` to initialize
+  one or more CAS accounts and populate data from LDAP without requiring
+  the user to login first, as an aid to managing accounts and permissions.
   The optional flag `--admin` will give the new account superuser
   permissions
+
+### Admin interface for CAS user initialization
+
+Register `CasUserAdmin` with your User model to add an **Add CAS Users**
+button to the user changelist in the Django admin. The form accepts one
+or more netids at a time.
+
+```python
+from django.contrib import admin
+from django.contrib.auth import get_user_model
+from pucas.admin import CasUserAdmin
+
+admin.site.register(get_user_model(), CasUserAdmin)
+```
+
+To use it alongside a custom `UserAdmin`, subclass `CasUserAdmin`:
+
+```python
+from pucas.admin import CasUserAdmin
+
+class MyUserAdmin(CasUserAdmin):
+    pass
+```
+
+`CasUserAdmin` uses a custom changelist template (`admin/pucas/user_change_list.html`)
+to add the **Add CAS Users** button. If you are already customizing the changelist
+template in your project, extend `CasUserAdmin`'s template instead of
+`admin/change_list.html` directly.
+
+Make sure `pucas` is in `INSTALLED_APPS` so Django's app template loader can find
+the templates:
+
+```python
+INSTALLED_APPS = [
+    ...
+    "pucas",
+]
+```
 
 ## Development instructions
 

@@ -2,13 +2,18 @@ from io import StringIO
 from unittest import mock
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.admin.sites import AdminSite
 from django.core.management import call_command
-from django.test import TestCase, override_settings
+from django.test import TestCase, RequestFactory, override_settings
 from ldap3.core.exceptions import LDAPCursorError, LDAPException
 import pytest
 
+from pucas.admin import CasUserAdmin
+from pucas.forms import CasUserInitForm
 from pucas.ldap import LDAPSearch, LDAPSearchException, \
-    user_info_from_ldap
+    init_cas_user, user_info_from_ldap
 from pucas.management.commands import createcasuser, ldapsearch
 from pucas.signals import cas_login
 
@@ -292,9 +297,7 @@ class TestLDAPSearchCommand(TestCase):
             all_attributes=False)
 
 
-@mock.patch('pucas.management.commands.createcasuser.get_user_model')
-@mock.patch('pucas.management.commands.createcasuser.LDAPSearch')
-@mock.patch('pucas.management.commands.createcasuser.user_info_from_ldap')
+@mock.patch('pucas.management.commands.createcasuser.init_cas_user')
 class TestCreateCasUserCommand(TestCase):
 
     def setUp(self):
@@ -302,15 +305,11 @@ class TestCreateCasUserCommand(TestCase):
         self.cmd.stdout = StringIO()
         self.cmd.stderr = StringIO()
 
-    def test_handle(self, mock_userinfo, mock_ldapsearch, mock_getuser):
+    def test_handle(self, mock_init_cas_user):
         mockuser = mock.Mock(is_staff=False, is_superuser=False)
-        mock_getuser.return_value.objects.get_or_create.return_value = \
-            (mockuser, False)
+        mock_init_cas_user.return_value = (mockuser, False)
         self.cmd.handle(netids=['jdoe'], admin=False, staff=False)
-        # search should be called
-        mock_ldapsearch.return_value.find_user.assert_called_with('jdoe')
-        # user info method should be called
-        mock_userinfo.assert_called_with(mockuser)
+        mock_init_cas_user.assert_called_with('jdoe')
         # not given staff or superuser permissions
         assert not mockuser.is_staff
         assert not mockuser.is_superuser
@@ -326,19 +325,181 @@ class TestCreateCasUserCommand(TestCase):
         assert mockuser.is_admin
 
         # created vs updated
-        mock_getuser.return_value.objects.get_or_create.return_value = \
-            (mockuser, True)
+        mock_init_cas_user.return_value = (mockuser, True)
         self.cmd.handle(netids=['jschmoe'], admin=True, staff=True)
         output = self.cmd.stdout.getvalue()
         assert "Created user 'jschmoe'" in output
 
-    def test_err(self, mock_userinfo, mock_ldapsearch, mock_getuser):
-        mock_ldapsearch.return_value.find_user.side_effect = LDAPSearchException
+    def test_err(self, mock_init_cas_user):
+        mock_init_cas_user.side_effect = LDAPSearchException
         self.cmd.handle(netids=['jdoe'], admin=False, staff=False)
         output = self.cmd.stderr.getvalue()
         assert "LDAP information for 'jdoe' not found" in output
 
-    def test_call_command(self, mock_userinfo, mock_ldapsearch, mock_getuser):
-        mock_ldapsearch.return_value.find_user.side_effect = LDAPSearchException
+    def test_call_command(self, mock_init_cas_user):
+        mock_init_cas_user.side_effect = LDAPSearchException
         call_command('createcasuser', 'jdoe', '--staff')
+        mock_init_cas_user.assert_called_with('jdoe')
+
+
+@mock.patch('pucas.ldap.LDAPSearch')
+@mock.patch('pucas.ldap.user_info_from_ldap')
+@mock.patch('pucas.ldap.get_user_model')
+class TestInitCasUser(TestCase):
+
+    def test_creates_new_user(self, mock_getuser, mock_userinfo, mock_ldapsearch):
+        mockuser = mock.Mock()
+        mock_getuser.return_value.objects.get_or_create.return_value = (mockuser, True)
+
+        user, created = init_cas_user('jdoe')
+
         mock_ldapsearch.return_value.find_user.assert_called_with('jdoe')
+        mock_getuser.return_value.objects.get_or_create.assert_called_with(username='jdoe')
+        # user info should be populated for new users
+        mock_userinfo.assert_called_with(mockuser)
+        assert user == mockuser
+        assert created is True
+
+    def test_existing_user_is_reinitialised(self, mock_getuser, mock_userinfo, mock_ldapsearch):
+        mockuser = mock.Mock()
+        mock_getuser.return_value.objects.get_or_create.return_value = (mockuser, False)
+
+        user, created = init_cas_user('jdoe')
+
+        # user info should be repopulated for existing users too
+        mock_userinfo.assert_called_with(mockuser)
+        assert user == mockuser
+        assert created is False
+
+    def test_ldap_not_found(self, mock_getuser, mock_userinfo, mock_ldapsearch):
+        mock_ldapsearch.return_value.find_user.side_effect = LDAPSearchException
+
+        with pytest.raises(LDAPSearchException):
+            init_cas_user('unknown')
+
+        # user record should not be created if LDAP lookup fails
+        mock_getuser.return_value.objects.get_or_create.assert_not_called()
+
+
+class TestCasUserInitForm(TestCase):
+
+    def test_valid_single_netid(self):
+        form = CasUserInitForm(data={"netids": "jdoe"})
+        assert form.is_valid()
+        assert form.cleaned_data["netids"] == ["jdoe"]
+
+    def test_valid_multiple_netids_spaces(self):
+        form = CasUserInitForm(data={"netids": "jdoe jschmoe abc123"})
+        assert form.is_valid()
+        assert form.cleaned_data["netids"] == ["jdoe", "jschmoe", "abc123"]
+
+    def test_valid_multiple_netids_newlines(self):
+        form = CasUserInitForm(data={"netids": "jdoe\njschmoe\nabc123"})
+        assert form.is_valid()
+        assert form.cleaned_data["netids"] == ["jdoe", "jschmoe", "abc123"]
+
+    def test_invalid_netid_special_chars(self):
+        form = CasUserInitForm(data={"netids": "jdoe; rm -rf /"})
+        assert not form.is_valid()
+        assert "netids" in form.errors
+
+    def test_invalid_netid_hyphen(self):
+        form = CasUserInitForm(data={"netids": "j-doe"})
+        assert not form.is_valid()
+
+    def test_empty_input(self):
+        form = CasUserInitForm(data={"netids": ""})
+        assert not form.is_valid()
+
+
+class TestCasUserAdmin(TestCase):
+
+    def setUp(self):
+        self.site = AdminSite()
+        self.admin = CasUserAdmin(get_user_model(), self.site)
+        self.factory = RequestFactory()
+
+    @mock.patch("pucas.admin.init_cas_user")
+    def test_get_renders_form(self, mock_init):
+        request = self.factory.get("/admin/users/user/cas-init/")
+        request.user = mock.Mock(is_active=True, is_staff=True)
+        # provide session and _messages for admin context
+        request.session = {}
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        request._messages = FallbackStorage(request)
+
+        response = self.admin.cas_user_init(request)
+        assert response.status_code == 200
+        assert isinstance(response.context_data["form"], CasUserInitForm)
+
+    @mock.patch("pucas.admin.LDAPSearch")
+    @mock.patch("pucas.admin.init_cas_user")
+    def test_post_creates_new_user(self, mock_init, mock_ldapsearch):
+        mock_init.return_value = (mock.Mock(), True)
+        request = self.factory.post(
+            "/admin/users/user/cas-init/", data={"netids": "jdoe"}
+        )
+        request.user = mock.Mock(is_active=True, is_staff=True)
+        request.session = {}
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        request._messages = FallbackStorage(request)
+
+        response = self.admin.cas_user_init(request)
+        mock_init.assert_called_once_with("jdoe", ldap=mock_ldapsearch.return_value)
+        # should redirect back to changelist
+        assert response.status_code == 302
+
+    @mock.patch("pucas.admin.LDAPSearch")
+    @mock.patch("pucas.admin.init_cas_user")
+    def test_post_existing_user(self, mock_init, mock_ldapsearch):
+        mock_init.return_value = (mock.Mock(), False)
+        request = self.factory.post(
+            "/admin/users/user/cas-init/", data={"netids": "jdoe"}
+        )
+        request.user = mock.Mock(is_active=True, is_staff=True)
+        request.session = {}
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        request._messages = FallbackStorage(request)
+
+        response = self.admin.cas_user_init(request)
+        mock_init.assert_called_once_with("jdoe", ldap=mock_ldapsearch.return_value)
+        assert response.status_code == 302
+
+    @mock.patch("pucas.admin.LDAPSearch")
+    @mock.patch("pucas.admin.init_cas_user")
+    def test_post_ldap_not_found(self, mock_init, mock_ldapsearch):
+        mock_init.side_effect = LDAPSearchException("not found")
+        request = self.factory.post(
+            "/admin/users/user/cas-init/", data={"netids": "unknown"}
+        )
+        request.user = mock.Mock(is_active=True, is_staff=True)
+        request.session = {}
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        request._messages = FallbackStorage(request)
+
+        response = self.admin.cas_user_init(request)
+        # still redirects; error shown via message_user
+        assert response.status_code == 302
+
+    @mock.patch("pucas.admin.init_cas_user")
+    def test_post_invalid_netid_does_not_call_init(self, mock_init):
+        request = self.factory.post(
+            "/admin/users/user/cas-init/", data={"netids": "j doe!"}
+        )
+        request.user = mock.Mock(is_active=True, is_staff=True)
+        request.session = {}
+        from django.contrib.messages.storage.fallback import FallbackStorage
+        request._messages = FallbackStorage(request)
+
+        response = self.admin.cas_user_init(request)
+        mock_init.assert_not_called()
+        # invalid form re-renders, no redirect
+        assert response.status_code == 200
+
+    def test_change_list_template(self):
+        assert self.admin.change_list_template == "admin/pucas/user_change_list.html"
+
+    def test_get_urls_includes_cas_init(self):
+        urls = self.admin.get_urls()
+        url_names = [u.name for u in urls if hasattr(u, 'name')]
+        assert "users_user_cas_init" in url_names

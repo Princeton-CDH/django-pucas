@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.10.2
+
+* Add `init_cas_user()` utility function to initialize a CAS user account from LDAP by netid; accepts optional `ldap` parameter to reuse an existing `LDAPSearch` connection when initializing multiple users
+* Add `CasUserInitForm` for netid input with alphanumeric validation
+* Add `CasUserAdmin` subclass of Django `UserAdmin` to provide a CAS user initialization view in the admin interface
+* Include templates in published package
+
 ## 0.10.1
 
 * Correct version number
