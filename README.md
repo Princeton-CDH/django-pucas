@@ -163,6 +163,21 @@ class MyUserAdmin(CasUserAdmin):
     pass
 ```
 
+`CasUserAdmin` uses a custom changelist template (`admin/pucas/user_change_list.html`)
+to add the **Add CAS Users** button. If you are already customizing the changelist
+template in your project, extend `CasUserAdmin`'s template instead of
+`admin/change_list.html` directly.
+
+Make sure `pucas` is in `INSTALLED_APPS` so Django's app template loader can find
+the templates:
+
+```python
+INSTALLED_APPS = [
+    ...
+    "pucas",
+]
+```
+
 ## Development instructions
 
 This git repository uses git flow branching conventions, with **main** as the current production release branch.
