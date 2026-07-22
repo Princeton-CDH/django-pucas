@@ -319,10 +319,12 @@ class TestCreateCasUserCommand(TestCase):
         # init with staff=True
         self.cmd.handle(netids=['jdoe'], admin=False, staff=True)
         assert mockuser.is_staff
+        assert mockuser.is_active
         # init with admin=True
         self.cmd.handle(netids=['jdoe'], admin=True, staff=True)
         assert mockuser.is_staff
         assert mockuser.is_admin
+        assert mockuser.is_active
 
         # created vs updated
         mock_init_cas_user.return_value = (mockuser, True)

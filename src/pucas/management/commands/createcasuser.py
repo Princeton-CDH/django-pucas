@@ -34,6 +34,9 @@ class Command(BaseCommand):
                     user.is_staff = True
                     if admin:
                         user.is_superuser = True
+                    # ensure admin/staff accounts are active even if
+                    # EXTRA_USER_INIT set them inactive
+                    user.is_active = True
                     user.save()
 
                 self.stdout.write(
