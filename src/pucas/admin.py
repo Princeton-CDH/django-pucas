@@ -42,8 +42,12 @@ class CasUserAdmin(UserAdmin):
                 ldap = LDAPSearch()
                 for netid in netids:
                     try:
-                        _, created = init_cas_user(netid, ldap=ldap)
+                        user, created = init_cas_user(netid, ldap=ldap)
                         if created:
+                            # activate accounts added by an admin directly,
+                            # overriding any EXTRA_USER_INIT that set them inactive
+                            user.is_active = True
+                            user.save()
                             created_list.append(netid)
                         else:
                             existing_list.append(netid)

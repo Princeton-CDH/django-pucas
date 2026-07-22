@@ -437,7 +437,8 @@ class TestCasUserAdmin(TestCase):
     @mock.patch("pucas.admin.LDAPSearch")
     @mock.patch("pucas.admin.init_cas_user")
     def test_post_creates_new_user(self, mock_init, mock_ldapsearch):
-        mock_init.return_value = (mock.Mock(), True)
+        mock_user = mock.Mock()
+        mock_init.return_value = (mock_user, True)
         request = self.factory.post(
             "/admin/users/user/cas-init/", data={"netids": "jdoe"}
         )
@@ -448,6 +449,9 @@ class TestCasUserAdmin(TestCase):
 
         response = self.admin.cas_user_init(request)
         mock_init.assert_called_once_with("jdoe", ldap=mock_ldapsearch.return_value)
+        # newly created accounts should be activated by the admin
+        assert mock_user.is_active is True
+        mock_user.save.assert_called()
         # should redirect back to changelist
         assert response.status_code == 302
 
