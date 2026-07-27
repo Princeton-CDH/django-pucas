@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.11
+
+* Add `init_cas_user()` utility function to initialize a CAS user account from LDAP by netid (generalized from `createcasuser` management command logic to make reusable)
+* Optional Django admin integration: `CasUserAdmin` provides an **Add CAS Users** form and link to allow to initializing user accounts by netid
+* `createcasuser` management command now ensures admin/staff accounts are active (potentially overriding custom init behavior)
+
+
 ## 0.10.1
 
 * Correct version number
@@ -12,7 +19,6 @@
 * Add `uv` support; update CI to use `uv sync` and `uv run pytest`
 * Drop Python 3.9 support; now tested against Python 3.10–3.14
 * Update publish workflow to use Python 3.12
-* Convert README from `.rst` to `.md`
 * Update license metadata to use SPDX expression (`Apache-2.0`)
 * Suppress known deprecation warnings from `ldap3` 2.9.1 (upstream bug, expected fix in ldap3 2.10)
 
