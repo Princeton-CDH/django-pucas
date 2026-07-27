@@ -15,7 +15,7 @@ support for prepopulating user account data based on an LDAP search.
 
 **django-pucas** is tested against:
 
-* Django `3.2-4.0`
+* Django `3.2-4.2`
 * Python `3.10-3.14`
 
 **django-pucas** requires **django-cas-ng** 3.6 or greater.
@@ -28,11 +28,11 @@ Use pip to install:
 pip install pucas
 ```
 
-You can also install from Github. Use `@master` or `@0.5` to install a
-specific tagged release or branch (e.g., for the latest code on `develop`):
+You can also install from Github. Use `@main` or `@0.11` to install a
+specific branch or tagged release:
 
 ```
-pip install git+https://github.com/Princeton-CDH/django-pucas.git@develop#egg=pucas
+pip install git+https://github.com/Princeton-CDH/django-pucas.git@main#egg=pucas
 ```
 
 ## Configuration
@@ -123,7 +123,6 @@ An example of a login template with local branding is provided at
 `pucas/templates/pucas/sample-pu-login.html` using re-usable template
 snippets that can be adapted or re-used as appropriate.
 
-Note that login templates have not yet been updated for Django 3.x.
 
 ## Usage
 
@@ -137,8 +136,10 @@ Two manage commands are provided, for convenience.
 * Use `python manage.py createcasuser netid1 netid2 netid3` to initialize
   one or more CAS accounts and populate data from LDAP without requiring
   the user to login first, as an aid to managing accounts and permissions.
-  The optional flag `--admin` will give the new account superuser
-  permissions
+  The optional flag `--admin` will give the new account superuser permissions
+  (bypasses all permission checks); `--staff` will give staff permissions,
+  which allow the account to log into the Django admin, but requires
+  additional permissions to be assigned separately.
 
 ### Admin interface for CAS user initialization
 
