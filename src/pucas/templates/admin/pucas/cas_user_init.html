@@ -1,0 +1,29 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div id="content-main">
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <div class="module">
+        <fieldset class="module aligned">
+          {{ form.non_field_errors }}
+
+          <div class="form-row">
+            {{ form.netids.label_tag }}
+            {{ form.netids }}
+            {% if form.netids.help_text %}
+              <p class="help">{{ form.netids.help_text }}</p>
+            {% endif %}
+            {{ form.netids.errors }}
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="submit-row">
+        <input type="submit" value="{% trans 'Add CAS Users' %}" class="default">
+      </div>
+    </form>
+  </div>
+{% endblock %}
