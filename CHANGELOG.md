@@ -3,7 +3,7 @@
 ## 0.11
 
 * Add `init_cas_user()` utility function to initialize a CAS user account from LDAP by netid (generalized from `createcasuser` management command logic to make reusable)
-* Add `CasUserAdmin` to provide an **Add CAS Users** form in the Django admin for initializing user accounts by netid
+* Optional Django admin integration: `CasUserAdmin` provides an **Add CAS Users** form and link to allow to initializing user accounts by netid
 * `createcasuser` management command now ensures admin/staff accounts are active (potentially overriding custom init behavior)
 
 
