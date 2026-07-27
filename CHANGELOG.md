@@ -19,7 +19,6 @@
 * Add `uv` support; update CI to use `uv sync` and `uv run pytest`
 * Drop Python 3.9 support; now tested against Python 3.10–3.14
 * Update publish workflow to use Python 3.12
-* Convert README from `.rst` to `.md`
 * Update license metadata to use SPDX expression (`Apache-2.0`)
 * Suppress known deprecation warnings from `ldap3` 2.9.1 (upstream bug, expected fix in ldap3 2.10)
 
